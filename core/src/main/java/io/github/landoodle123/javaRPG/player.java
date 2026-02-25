@@ -17,6 +17,8 @@ public class player {
         //TODO: Add logic for use, either picking up an item or interacting with an npc or door
         if (playerRectangle.overlaps(npc.npcRectangle)) {
             npc.talk();
+        } else {
+            System.out.println("Neither overlapping npc or door");
         }
     }
     public void attack() {

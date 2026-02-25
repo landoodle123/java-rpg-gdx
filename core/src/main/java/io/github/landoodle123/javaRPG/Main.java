@@ -13,6 +13,7 @@ import com.badlogic.gdx.*;
 import static com.badlogic.gdx.Gdx.graphics;
 import static io.github.landoodle123.javaRPG.npc.npcRectangle;
 import static io.github.landoodle123.javaRPG.player.*;
+import static io.github.landoodle123.javaRPG.npc.talk;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -66,7 +67,9 @@ public class Main extends ApplicationAdapter {
             playerCharacter.setY(playerCharacter.getY() - speed * delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            System.out.println("space pressed");
             player.use();
+            talk();
         }
     }
 

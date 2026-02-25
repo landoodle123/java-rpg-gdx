@@ -26,7 +26,7 @@ public class npc {
 
     public static void talk() {
         System.out.println("npc talk initiated - if no dialog box shows up there is an error");
-        int dialogueSelection = ThreadLocalRandom.current().nextInt(0, 4);
+        int dialogueSelection = ThreadLocalRandom.current().nextInt(0, 3);
         Stage stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
