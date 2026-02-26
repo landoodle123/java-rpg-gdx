@@ -42,8 +42,7 @@ public class Main extends ApplicationAdapter {
         playerCharacter = new Sprite(charTexture);
         playerCharacter.setSize(1, 1);
         viewport = new FitViewport(8,8);
-        playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
-        npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
+
     }
 
     @Override
@@ -132,6 +131,8 @@ public class Main extends ApplicationAdapter {
 
         npc.draw(spriteBatch); // Sprites have their own draw method
         playerCharacter.draw(spriteBatch);
+        playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
+        npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
         /**npcShape.begin(ShapeRenderer.ShapeType.Line);
         npcShape.setColor(Color.BLACK);
         npcShape.rect(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
