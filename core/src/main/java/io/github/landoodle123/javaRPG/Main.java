@@ -28,6 +28,8 @@ public class Main extends ApplicationAdapter {
     private static Sprite npc;
     private Texture npcTexture;
     private FitViewport viewport;
+    Texture backgroundTexture;
+    Texture wallTexture;
     static JFrame f;
     public static Boolean stopt1 = false;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -72,6 +74,9 @@ public class Main extends ApplicationAdapter {
         playerCharacter = new Sprite(charTexture);
         playerCharacter.setSize(1, 1);
         viewport = new FitViewport(8,8);
+        backgroundTexture = new Texture("grassbg.png");
+        wallTexture = new Texture("wall.png");
+
 
     }
 
@@ -175,11 +180,12 @@ public class Main extends ApplicationAdapter {
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
         spriteBatch.begin();
 
-
+        spriteBatch.draw(backgroundTexture, 0, 0, 8, 8);
         npc.draw(spriteBatch); // Sprites have their own draw method
         playerCharacter.draw(spriteBatch);
         playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
         npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
+
         /**npcShape.begin(ShapeRenderer.ShapeType.Line);
         npcShape.setColor(Color.BLACK);
         npcShape.rect(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
