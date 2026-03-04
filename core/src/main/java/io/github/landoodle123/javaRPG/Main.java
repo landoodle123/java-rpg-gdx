@@ -10,6 +10,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.*;
 
 import javax.swing.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -30,8 +32,12 @@ public class Main extends ApplicationAdapter {
     private FitViewport viewport;
     Texture backgroundTexture;
     Texture wallTexture;
+    private static Sprite wall;
+    ArrayList<Sprite> walls = new ArrayList<Sprite>();
     static JFrame f;
     public static Boolean stopt1 = false;
+    Rectangle wallRectangle;
+    Integer numOfTotalWalls = 0;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
     public static Runnable runTalk = new Runnable() {
 
@@ -76,9 +82,97 @@ public class Main extends ApplicationAdapter {
         viewport = new FitViewport(8,8);
         backgroundTexture = new Texture("grassbg.png");
         wallTexture = new Texture("wall.png");
+        wall = new Sprite(wallTexture);
+        wall.setSize(1, 1);
 
 
     }
+
+    /**public void wall() {
+        Boolean[] row1 = {false, true, false, true, false, true, false, true};
+        Boolean[] row2 = {true, false, true, false, true, false, true, false};
+        Boolean[] row3 = {false, true, false, true, false, true, false, true};
+        Boolean[] row4 = {true, false, true, false, true, false, true, false};
+        Boolean[] row5 = {false, true, false, true, false, true, false, true};
+        Boolean[] row6 = {true, false, true, false, true, false, true, false};
+        Boolean[] row7 = {false, true, false, true, false, true, false, true};
+        Boolean[] row8 = {false, false, true, false, true, false, true, false};
+        Integer currentX = 0;
+        Integer currentY = 7;
+
+
+        for(Boolean individualWall : row1) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row2) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row3) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row4) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row5) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row6) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row7) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row8) {
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }
+        }
+    }**/
 
     @Override
     public void render() {
@@ -108,8 +202,14 @@ public class Main extends ApplicationAdapter {
                 System.out.println(t1.getState() + " = t1 state");
             }
         }**/
-        try {executor.submit(runTalk);} catch(Exception e) {
-            System.out.println("Failed with exception: " + e);
+        if (playerRectangle.overlaps(npcRectangle)) {
+            try {
+                executor.submit(runTalk);
+            } catch (Exception e) {
+                System.out.println("Failed with exception: " + e);
+            }
+        } else {
+            System.out.println("no overlap");
         }
     }
     private void input() {
@@ -118,15 +218,30 @@ public class Main extends ApplicationAdapter {
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && playerCharacter.getX() < 7) {
             playerCharacter.setX(playerCharacter.getX() + speed * delta);
+            if (playerRectangle.overlaps(wallRectangle)) {
+                playerCharacter.setX(playerCharacter.getX() - speed * delta);
+            }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerCharacter.getX() > 0) {
             playerCharacter.setX(playerCharacter.getX() - speed * delta);
+            if (playerRectangle.overlaps(wallRectangle)) {
+                playerCharacter.setX(playerCharacter.getX() + speed * delta);
+            }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP) && playerCharacter.getY() < 7) {
             playerCharacter.setY(playerCharacter.getY() + speed * delta);
+            if (playerRectangle.overlaps(wallRectangle)) {
+                System.out.println("overlaps");
+                playerCharacter.setY(playerCharacter.getY() - speed * delta);
+            } else {
+                System.out.println("doesnt overlap");
+            }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && playerCharacter.getY() > 0) {
             playerCharacter.setY(playerCharacter.getY() - speed * delta);
+            if (playerRectangle.overlaps(wallRectangle)) {
+                playerCharacter.setY(playerCharacter.getY() + speed * delta);
+            }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             System.out.println("space pressed");
@@ -181,6 +296,145 @@ public class Main extends ApplicationAdapter {
         spriteBatch.begin();
 
         spriteBatch.draw(backgroundTexture, 0, 0, 8, 8);
+        /**wall();
+        for(int j = 0; j < numOfTotalWalls; j++) {
+            System.out.println("drawing walls");
+            for (int k = 0; k < numOfTotalWalls; k++) {
+                walls.add(wall);
+            }
+
+            for(int l = 0; l < walls.size(); l++) {
+                wall.draw(spriteBatch);
+                spriteBatch.draw(wallTexture, 1, 1, 1, 1);
+            }
+            wall();
+        }**/
+
+        Boolean[] row1 = {false, true, false, true, false, true, false, true};
+        Boolean[] row2 = {true, false, true, false, true, false, true, false};
+        Boolean[] row3 = {false, true, false, true, false, true, false, true};
+        Boolean[] row4 = {true, false, true, false, true, false, true, false};
+        Boolean[] row5 = {false, true, false, true, false, true, false, true};
+        Boolean[] row6 = {true, false, true, false, true, false, true, false};
+        Boolean[] row7 = {false, true, false, true, false, true, false, true};
+        Boolean[] row8 = {false, false, true, false, true, false, true, false};
+        Integer currentX = 0;
+        Integer currentY = 7;
+
+
+        for(Boolean individualWall : row1) {
+            currentY = 7;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            } else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row2) {
+            currentY = 6;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row3) {
+            currentY = 5;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row4) {
+            currentY = 4;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row5) {
+            currentY = 3;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row6) {
+            currentY = 2;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row7) {
+            currentY = 1;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+        currentX = 0;
+        for(Boolean individualWall : row8) {
+            currentY = 0;
+            if (individualWall) {
+                numOfTotalWalls++;
+                wall.draw(spriteBatch);
+                wallRectangle = new Rectangle(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight());
+                wall.setX(currentX);
+                wall.setY(currentY);
+                currentX++;
+            }else {
+                currentX++;
+            }
+        }
+
+
         npc.draw(spriteBatch); // Sprites have their own draw method
         playerCharacter.draw(spriteBatch);
         playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
