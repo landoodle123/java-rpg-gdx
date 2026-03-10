@@ -1,33 +1,21 @@
-# Java-RPG
+# Java RPG
+This is an RPG coded in Java that is being developed for a school project.
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Code is confirmed to work on Windows and MacOS with no issues, Linux likely works but is untested. No functionality is guaranteed on Android
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+# System Requirements:
+## Minimum:
+* CPU: 64-bit dual-core (or single core with hyperthreading)
+* RAM: 4GB
+* Storage: 25 MB free
+* JVM version: 17
+* GPU: OpenGL ES 2.0 supported
+* OS: Windows 7 or higher, Linux 5.x or higher, MacOS 11 or higher
+## Recommended:
+* CPU: Intel Core i5-2500K or AMD FX-8350
+* RAM: 4GB
+* Storage: 50 MB free
+* JVM version: 17 or higher
+* GPU: GeForce 7600 GS AGP or ATI Radeon X1600 XT
+* OS: Windows 7 or higher. Linux 5.x or higher, MacOS 11 or higher
 
-## Platforms
-
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
-
-## Gradle
-
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
-
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
-
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
