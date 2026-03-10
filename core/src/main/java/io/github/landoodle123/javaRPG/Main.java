@@ -30,10 +30,16 @@ public class Main extends ApplicationAdapter {
     private static Sprite npc;
     private Texture npcTexture;
     private FitViewport viewport;
+    private static Sprite swordUpgrade;
+    private Texture swordUpgradeTexture;
+    Integer playerHealth;
+    static Integer playerSword;
     Texture backgroundTexture;
+    static Rectangle swordUpgradeRectangle;
     Texture wallTexture;
     private static Sprite wall;
     ArrayList<Sprite> walls = new ArrayList<Sprite>();
+    ArrayList<Rectangle> wallRectangles = new ArrayList<Rectangle>();
     static JFrame f;
     public static Boolean stopt1 = false;
     Rectangle wallRectangle;
@@ -73,17 +79,22 @@ public class Main extends ApplicationAdapter {
         npcTexture = new Texture("guy.png");
         npc = new Sprite(npcTexture);
         npc.setSize(1, 1);
+        swordUpgradeTexture = new Texture("swordupgrade.png");
+        swordUpgrade = new Sprite(swordUpgradeTexture);
+        swordUpgrade.setSize(1, 1);
         try{charTexture = new Texture("player.png");} catch (Exception e) {
             System.out.println("Error occurred loading player.png, loaded guy.png instead."); //who at oracle thought that "System.out.println()" was a good name for a function used as commonly as printing to stdio
             charTexture = new Texture("guy.png");
         } //TODO: make player character
         playerCharacter = new Sprite(charTexture);
-        playerCharacter.setSize(1, 1);
+        playerCharacter.setSize(0.85F, 0.85F);
         viewport = new FitViewport(8,8);
         backgroundTexture = new Texture("grassbg.png");
         wallTexture = new Texture("wall.png");
         wall = new Sprite(wallTexture);
         wall.setSize(1, 1);
+        playerHealth = 100;
+        playerSword = 1;
 
 
     }
@@ -208,6 +219,13 @@ public class Main extends ApplicationAdapter {
             } catch (Exception e) {
                 System.out.println("Failed with exception: " + e);
             }
+        } else if (playerRectangle.overlaps(swordUpgradeRectangle)) {
+            if (playerSword < 10) {
+                playerSword++;
+                System.out.println("playerSword level is " + playerSword);
+            } else {
+                System.out.println("sword is at max level");
+            }
         } else {
             System.out.println("no overlap");
         }
@@ -215,38 +233,57 @@ public class Main extends ApplicationAdapter {
     private void input() {
         float speed = 1f;
         float delta = graphics.getDeltaTime();
+        //Boolean overlapOnce = true;
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && playerCharacter.getX() < 7) {
             playerCharacter.setX(playerCharacter.getX() + speed * delta);
-            if (playerRectangle.overlaps(wallRectangle)) {
-                playerCharacter.setX(playerCharacter.getX() - speed * delta);
+            for (Rectangle wallRectangle : wallRectangles) {
+                if (playerRectangle.overlaps(wallRectangle) && /**overlapOnce &&**/ wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
+                    playerCharacter.setX(Math.round(playerCharacter.getX()) - speed * delta);
+                    System.out.println("overlaps");
+                    System.out.println("coords = " + wallRectangle.getX() + wallRectangle.getY());
+                    //overlapOnce = false;
+                }
             }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerCharacter.getX() > 0) {
             playerCharacter.setX(playerCharacter.getX() - speed * delta);
-            if (playerRectangle.overlaps(wallRectangle)) {
-                playerCharacter.setX(playerCharacter.getX() + speed * delta);
+            for (Rectangle wallRectangle : wallRectangles) {
+                if (playerRectangle.overlaps(wallRectangle) && /**overlapOnce &&**/ wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
+                    playerCharacter.setX(Math.round(playerCharacter.getX()) + speed * delta);
+                    //overlapOnce = false;
+                }
             }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP) && playerCharacter.getY() < 7) {
             playerCharacter.setY(playerCharacter.getY() + speed * delta);
-            if (playerRectangle.overlaps(wallRectangle)) {
-                System.out.println("overlaps");
-                playerCharacter.setY(playerCharacter.getY() - speed * delta);
-            } else {
-                System.out.println("doesnt overlap");
+            for (Rectangle wallRectangle : wallRectangles) {
+                if (playerRectangle.overlaps(wallRectangle) && /**overlapOnce &&**/ wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
+                    playerCharacter.setY(Math.round(playerCharacter.getY()) - speed * delta);
+                    //overlapOnce = false;
+                }
             }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && playerCharacter.getY() > 0) {
             playerCharacter.setY(playerCharacter.getY() - speed * delta);
-            if (playerRectangle.overlaps(wallRectangle)) {
-                playerCharacter.setY(playerCharacter.getY() + speed * delta);
+            for (Rectangle wallRectangle : wallRectangles) {
+                if (playerRectangle.overlaps(wallRectangle) && /**overlapOnce &&**/ wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
+                    playerCharacter.setY(Math.round(playerCharacter.getY()) + speed * delta);
+                    //overlapOnce = false;
+
+                }
             }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             System.out.println("space pressed");
             stopt1 = false;
             use();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F6)) {
+            System.out.println("moving to square 1, 2");
+            playerCharacter.setX(1);
+            playerCharacter.setY(2);
         }
     }
     public static void talk() throws InterruptedException {
@@ -315,9 +352,9 @@ public class Main extends ApplicationAdapter {
         Boolean[] row3 = {false, true, false, true, false, true, false, true};
         Boolean[] row4 = {true, false, true, false, true, false, true, false};
         Boolean[] row5 = {false, true, false, true, false, true, false, true};
-        Boolean[] row6 = {true, false, true, false, true, false, true, false};
-        Boolean[] row7 = {false, true, false, true, false, true, false, true};
-        Boolean[] row8 = {false, false, true, false, true, false, true, false};
+        Boolean[] row6 = {false, false, false, false, true, false, true, false};
+        Boolean[] row7 = {false, false, false, true, false, true, false, true};
+        Boolean[] row8 = {false, false, false, false, true, false, true, false};
         Integer currentX = 0;
         Integer currentY = 7;
 
@@ -328,6 +365,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -342,6 +380,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -356,6 +395,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -370,6 +410,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -384,6 +425,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -398,6 +440,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -412,6 +455,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -426,6 +470,7 @@ public class Main extends ApplicationAdapter {
                 numOfTotalWalls++;
                 wall.draw(spriteBatch);
                 wallRectangle = new Rectangle(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight());
+                wallRectangles.add(wallRectangle);
                 wall.setX(currentX);
                 wall.setY(currentY);
                 currentX++;
@@ -439,6 +484,11 @@ public class Main extends ApplicationAdapter {
         playerCharacter.draw(spriteBatch);
         playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
         npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
+        wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+        swordUpgrade.draw(spriteBatch);
+        swordUpgrade.setX(2);
+        swordUpgrade.setY(1);
+        swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(), swordUpgrade.getWidth(), swordUpgrade.getHeight());
 
         /**npcShape.begin(ShapeRenderer.ShapeType.Line);
         npcShape.setColor(Color.BLACK);
