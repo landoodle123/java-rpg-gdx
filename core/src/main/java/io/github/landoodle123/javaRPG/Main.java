@@ -37,6 +37,8 @@ public class Main extends ApplicationAdapter {
     Texture backgroundTexture;
     static Rectangle swordUpgradeRectangle;
     Texture wallTexture;
+    Integer npcHealth;
+    static Boolean npcAlive;
     private static Sprite wall;
     ArrayList<Sprite> walls = new ArrayList<Sprite>();
     ArrayList<Rectangle> wallRectangles = new ArrayList<Rectangle>();
@@ -79,6 +81,7 @@ public class Main extends ApplicationAdapter {
         npcTexture = new Texture("guy.png");
         npc = new Sprite(npcTexture);
         npc.setSize(1, 1);
+        npc.setY(2);
         swordUpgradeTexture = new Texture("swordupgrade.png");
         swordUpgrade = new Sprite(swordUpgradeTexture);
         swordUpgrade.setSize(1, 1);
@@ -95,6 +98,8 @@ public class Main extends ApplicationAdapter {
         wall.setSize(1, 1);
         playerHealth = 100;
         playerSword = 1;
+        npcHealth = 10;
+        npcAlive = true;
 
 
     }
@@ -196,7 +201,7 @@ public class Main extends ApplicationAdapter {
         viewport.update(width, height, true); // true centers the camera
     }
     public static void use() {
-        //TODO: Add logic for use, either picking up an item or interacting with an npc or door
+        //TODO: add door logic
         /**if (playerRectangle.overlaps(npcRectangle) && t1.getState() == Thread.State.NEW) {
             t1.start();
         } else if (playerRectangle.overlaps(npcRectangle) && t1.getState() == Thread.State.TERMINATED) {
@@ -215,7 +220,7 @@ public class Main extends ApplicationAdapter {
         }**/
         if (playerRectangle.overlaps(npcRectangle)) {
             try {
-                executor.submit(runTalk);
+                if(npcAlive) {executor.submit(runTalk);}
             } catch (Exception e) {
                 System.out.println("Failed with exception: " + e);
             }
@@ -284,6 +289,33 @@ public class Main extends ApplicationAdapter {
             System.out.println("moving to square 1, 2");
             playerCharacter.setX(1);
             playerCharacter.setY(2);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ALT_LEFT)) {
+            System.out.println("attacking");
+            try {
+                attack();
+            } catch (Exception e) {
+                System.out.println("attack failed with exception" + e);
+            }
+        }
+    }
+    public void attack() throws InterruptedException {
+        if (playerRectangle.overlaps(npcRectangle)) {
+            System.out.println("NPC hit");
+            spriteBatch.begin();
+            charTexture = new Texture("stabbystab.png");
+            playerCharacter.draw(spriteBatch);
+            TimeUnit.SECONDS.sleep(1);
+            charTexture = new Texture("player.png");
+            playerCharacter.draw(spriteBatch);
+            spriteBatch.end();
+            if (npcAlive) {
+                npcHealth = npcHealth - playerSword;
+                if (npcHealth <= 0) {
+                    npcAlive = false;
+                    System.out.println("npc died lol skill issue");
+                }
+            }
         }
     }
     public static void talk() throws InterruptedException {
@@ -480,7 +512,7 @@ public class Main extends ApplicationAdapter {
         }
 
 
-        npc.draw(spriteBatch); // Sprites have their own draw method
+        if (npcAlive) {npc.draw(spriteBatch);}
         playerCharacter.draw(spriteBatch);
         playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
         npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
