@@ -10,10 +10,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.*;
 
 import javax.swing.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +29,7 @@ public class Main extends ApplicationAdapter {
     private FitViewport viewport;
     private static Sprite swordUpgrade;
     private Texture swordUpgradeTexture;
-    Integer playerHealth;
+    private Integer playerHealth;
     static Integer playerSword;
     Texture backgroundTexture;
     static Rectangle swordUpgradeRectangle;
@@ -41,39 +38,21 @@ public class Main extends ApplicationAdapter {
     static Boolean npcAlive;
     private static Sprite wall;
     ArrayList<Sprite> walls = new ArrayList<Sprite>();
-    ArrayList<Rectangle> wallRectangles = new ArrayList<Rectangle>();
+    ArrayList<Rectangle> wallRectangles = new ArrayList<>();
     static JFrame f;
     public static Boolean stopt1 = false;
     Rectangle wallRectangle;
     Integer numOfTotalWalls = 0;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
-    public static Runnable runTalk = new Runnable() {
-
-        @Override
-        public void run() {
-            try {
-                while (!stopt1) {
-                    talk();
-                }
-            } catch (InterruptedException e) {
-                System.out.println("Failed with exception: " + e);
+    public static Runnable runTalk = () -> {
+        try {
+            while (!stopt1) {
+                talk();
             }
+        } catch (InterruptedException e) {
+            System.out.println("Failed with exception: " + e);
         }
     };
-    //ShapeRenderer npcShape = new ShapeRenderer();
-    //ShapeRenderer playerShape = new ShapeRenderer();
-    /**static Thread t1 = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            while (!stopt1) {
-                try {
-                    talk();
-                } catch (Exception e) {
-                    System.out.println("Talk failed with exception " + e);
-                }
-            }
-        }
-    });**/
 
     @Override
     public void create() {
@@ -104,92 +83,6 @@ public class Main extends ApplicationAdapter {
 
     }
 
-    /**public void wall() {
-        Boolean[] row1 = {false, true, false, true, false, true, false, true};
-        Boolean[] row2 = {true, false, true, false, true, false, true, false};
-        Boolean[] row3 = {false, true, false, true, false, true, false, true};
-        Boolean[] row4 = {true, false, true, false, true, false, true, false};
-        Boolean[] row5 = {false, true, false, true, false, true, false, true};
-        Boolean[] row6 = {true, false, true, false, true, false, true, false};
-        Boolean[] row7 = {false, true, false, true, false, true, false, true};
-        Boolean[] row8 = {false, false, true, false, true, false, true, false};
-        Integer currentX = 0;
-        Integer currentY = 7;
-
-
-        for(Boolean individualWall : row1) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row2) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row3) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row4) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row5) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row6) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row7) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-        currentX = 0;
-        for(Boolean individualWall : row8) {
-            if (individualWall) {
-                numOfTotalWalls++;
-                wall.setX(currentX);
-                wall.setY(currentY);
-                currentX++;
-            }
-        }
-    }**/
-
     @Override
     public void render() {
         input();
@@ -202,22 +95,6 @@ public class Main extends ApplicationAdapter {
     }
     public static void use() {
         //TODO: add door logic
-        /**if (playerRectangle.overlaps(npcRectangle) && t1.getState() == Thread.State.NEW) {
-            t1.start();
-        } else if (playerRectangle.overlaps(npcRectangle) && t1.getState() == Thread.State.TERMINATED) {
-            System.out.println("Thread was terminated");
-            try {t1.start();} catch (Exception e) {
-                System.out.println("Thread failed to start with exception: " + e);
-            }
-        } else {
-            if (t1.getState() != Thread.State.NEW) {
-                System.out.println("thread already running or in broken state");
-                System.out.println(t1.getState() + " = t1 state");
-            } else {
-                System.out.println("Player not overlapping anything.");
-                System.out.println(t1.getState() + " = t1 state");
-            }
-        }**/
         if (playerRectangle.overlaps(npcRectangle)) {
             try {
                 if(npcAlive) {executor.submit(runTalk);}
@@ -349,11 +226,6 @@ public class Main extends ApplicationAdapter {
         float npcWidth = npc.getWidth();
         float npcHeight = npc.getWidth();
 
-        //playerRectangle.setX(MathUtils.clamp(playerCharacter.getX(), 0, worldWidth - playerWidth));
-        //playerRectangle.setY(MathUtils.clamp(playerCharacter.getY(), 0, worldHeight - playerHeight));
-        //npcRectangle.setX(MathUtils.clamp(npc.getX(), 0, worldWidth - npcWidth));
-        //npcRectangle.setY(MathUtils.clamp(npc.getY(), 0, worldHeight - npcHeight));
-
 
 
     }
@@ -365,19 +237,6 @@ public class Main extends ApplicationAdapter {
         spriteBatch.begin();
 
         spriteBatch.draw(backgroundTexture, 0, 0, 8, 8);
-        /**wall();
-        for(int j = 0; j < numOfTotalWalls; j++) {
-            System.out.println("drawing walls");
-            for (int k = 0; k < numOfTotalWalls; k++) {
-                walls.add(wall);
-            }
-
-            for(int l = 0; l < walls.size(); l++) {
-                wall.draw(spriteBatch);
-                spriteBatch.draw(wallTexture, 1, 1, 1, 1);
-            }
-            wall();
-        }**/
 
         Boolean[] row1 = {false, true, false, true, false, true, false, true};
         Boolean[] row2 = {true, false, true, false, true, false, true, false};
@@ -387,8 +246,8 @@ public class Main extends ApplicationAdapter {
         Boolean[] row6 = {false, false, false, false, true, false, true, false};
         Boolean[] row7 = {false, false, false, true, false, true, false, true};
         Boolean[] row8 = {false, false, false, false, true, false, true, false};
-        Integer currentX = 0;
-        Integer currentY = 7;
+        int currentX = 0;
+        int currentY = 7;
 
 
         for(Boolean individualWall : row1) {
@@ -521,14 +380,6 @@ public class Main extends ApplicationAdapter {
         swordUpgrade.setX(2);
         swordUpgrade.setY(1);
         swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(), swordUpgrade.getWidth(), swordUpgrade.getHeight());
-
-        /**npcShape.begin(ShapeRenderer.ShapeType.Line);
-        npcShape.setColor(Color.BLACK);
-        npcShape.rect(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
-        playerShape.begin(ShapeRenderer.ShapeType.Line);
-        playerShape.setColor(Color.BLACK);
-        npcShape.rect(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
-        **/
 
 
         spriteBatch.end();
