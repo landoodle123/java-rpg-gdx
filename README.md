@@ -1,9 +1,9 @@
 # Java RPG
 This is an RPG coded in Java that is being developed for a school project.
 
-![Windows](https://img.shields.io/badge/Windows-Supported-blue?logo=windows)
+![Windows](https://img.shields.io/badge/Windows-Supported-lightgrey?logo=windows)
 ![macOS](https://img.shields.io/badge/macOS-Supported-lightgrey?logo=apple)
-![Linux](https://img.shields.io/badge/Linux-Untested-yellow?logo=linux)
+![Linux](https://img.shields.io/badge/Linux-Supported-lightgrey?logo=linux)
 ![FreeBSD](https://img.shields.io/badge/FreeBSD-Untested-yellow?logo=freebsd)
 ![Android](https://img.shields.io/badge/Android-Unsupported-red?logo=android)
 
