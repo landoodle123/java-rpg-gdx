@@ -1,4 +1,4 @@
-# Java RPG
+t# Java RPG
 This is an RPG coded in Java that is being developed for a school project.
 
 Code is confirmed to work on Windows and MacOS with no issues, Linux likely works but is untested. No functionality is guaranteed on Android
