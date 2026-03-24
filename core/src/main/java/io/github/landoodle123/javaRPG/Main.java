@@ -303,7 +303,6 @@ public class Main extends ApplicationAdapter {
             spriteBatch.begin();
             charTexture = new Texture("stabbystab.png");
             playerCharacter.draw(spriteBatch);
-            TimeUnit.SECONDS.sleep(1);
             charTexture = new Texture("player.png");
             playerCharacter.draw(spriteBatch);
             spriteBatch.end();
