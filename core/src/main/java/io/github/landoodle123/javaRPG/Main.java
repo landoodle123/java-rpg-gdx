@@ -49,7 +49,7 @@ public class Main extends ApplicationAdapter {
     public static Boolean stopt1 = false;
     Rectangle wallRectangle;
     Integer numOfTotalWalls = 0;
-    static String[] maps = {"main.json", "dungeon.json"};
+    static String[] maps = {"main.json", "dungeon.json", "main.json"};
     static Integer currentLoadedMap = 0;
     Texture doorTexture;
     static Sprite door;
