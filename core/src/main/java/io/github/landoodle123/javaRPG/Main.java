@@ -40,16 +40,20 @@ public class Main extends ApplicationAdapter {
     Texture backgroundTexture;
     static Rectangle swordUpgradeRectangle;
     Texture wallTexture;
-    Integer npcHealth;
+    static Integer npcHealth;
     static Boolean npcAlive;
     private static Sprite wall;
     ArrayList<Sprite> walls = new ArrayList<>();
-    ArrayList<Rectangle> wallRectangles = new ArrayList<>();
+    static ArrayList<Rectangle> wallRectangles = new ArrayList<>();
     static JFrame f;
     public static Boolean stopt1 = false;
     Rectangle wallRectangle;
     Integer numOfTotalWalls = 0;
-    String currentLoadedMap = "main.json";
+    static String[] maps = {"main.json", "dungeon.json"};
+    static Integer currentLoadedMap = 0;
+    Texture doorTexture;
+    static Sprite door;
+    static Rectangle doorRectangle;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
 
     // -------------------------
@@ -96,6 +100,10 @@ public class Main extends ApplicationAdapter {
         wallTexture = new Texture("wall.png");
         wall = new Sprite(wallTexture);
         wall.setSize(1, 1);
+
+        doorTexture = new Texture("door.png");
+        door = new Sprite(doorTexture);
+        door.setSize(1, 1);
 
         playerHealth = 100;
         playerSword = 1;
@@ -211,7 +219,7 @@ public class Main extends ApplicationAdapter {
 
         spriteBatch.draw(backgroundTexture, 0, 0, 8, 8);
 
-        Integer[][] board = parseBoard(currentLoadedMap);
+        Integer[][] board = parseBoard(maps[currentLoadedMap]);
         wallRectangles.clear();
 
         for (int row = 0; row < board.length; row++) {
@@ -237,7 +245,10 @@ public class Main extends ApplicationAdapter {
                         swordUpgrade.setX(currentX);
                         swordUpgrade.setY(currentY);
                     }
-                    case 5 -> {} // door (not implemented)
+                    case 5 -> { // door
+                        door.setX(currentX);
+                        door.setY(currentY);
+                    }
                     default -> throw new Exception("Invalid tile value: " + tile + " at row " + row + ", col " + currentX);
                 }
                 currentX++;
@@ -245,12 +256,14 @@ public class Main extends ApplicationAdapter {
         }
 
         if (npcAlive) { npc.draw(spriteBatch); }
+        door.draw(spriteBatch);
         playerCharacter.draw(spriteBatch);
         swordUpgrade.draw(spriteBatch);
 
         playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
         npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
         wallRectangle = new Rectangle(wall.getX(), wall.getY(), 1, 1);
+        doorRectangle = new Rectangle(door.getX(), door.getY(), 1, 1);
         swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(), swordUpgrade.getWidth(), swordUpgrade.getHeight());
 
         spriteBatch.end();
@@ -274,7 +287,44 @@ public class Main extends ApplicationAdapter {
 
         return rows;
     }
+    public static void changeMap(int newMapIndex) {
+        // Bounds check
+        if (newMapIndex >= maps.length) {
+            System.out.println("No more maps to load.");
+            return;
+        }
 
+        currentLoadedMap = newMapIndex;
+
+        // Reset player position to a safe spawn point
+        playerCharacter.setX(0);
+        playerCharacter.setY(0);
+        playerRectangle = new Rectangle(0, 0, playerCharacter.getWidth(), playerCharacter.getHeight());
+
+        // Reset NPC state for the new room
+        npcAlive = true;
+        npcHealth = 10; // or load from map data if you have per-map health
+
+        // Clear wall collision data — draw() repopulates this each frame,
+        // but clearing here prevents one stale frame of ghost collisions
+        wallRectangles.clear();
+
+        // Push all sprite positions off-screen so they don't flash
+        // at their old coordinates for one frame before draw() repositions them
+        npc.setPosition(-10, -10);
+        swordUpgrade.setPosition(-10, -10);
+        door.setPosition(-10, -10);
+
+        // Reposition rectangles to match
+        npcRectangle = new Rectangle(-10, -10, 1, 1);
+        swordUpgradeRectangle = new Rectangle(-10, -10, 1, 1);
+        doorRectangle = new Rectangle(-10, -10, 1, 1);
+
+        // Stop any ongoing NPC dialogue thread
+        stopt1 = true;
+
+        System.out.println("Loaded map: " + maps[currentLoadedMap]);
+    }
     // -------------------------
     // Actions
     // -------------------------
@@ -292,6 +342,8 @@ public class Main extends ApplicationAdapter {
             } else {
                 System.out.println("sword is at max level");
             }
+        } else if (playerRectangle.overlaps(doorRectangle)) {
+            changeMap(currentLoadedMap + 1);
         } else {
             System.out.println("no overlap");
         }
