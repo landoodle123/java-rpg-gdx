@@ -49,11 +49,12 @@ public class Main extends ApplicationAdapter {
     public static Boolean stopt1 = false;
     Rectangle wallRectangle;
     Integer numOfTotalWalls = 0;
-    static String[] maps = {"main.json", "dungeon.json", "main.json"};
+    static String[] maps = {"main.json", "dungeon.json", "main.json", "random.json"};
     static Integer currentLoadedMap = 0;
     Texture doorTexture;
     static Sprite door;
     static Rectangle doorRectangle;
+    static Boolean swordUpgradeAvail = true;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
 
     // -------------------------
@@ -258,7 +259,9 @@ public class Main extends ApplicationAdapter {
         if (npcAlive) { npc.draw(spriteBatch); }
         door.draw(spriteBatch);
         playerCharacter.draw(spriteBatch);
-        swordUpgrade.draw(spriteBatch);
+        if(swordUpgradeAvail) {
+            swordUpgrade.draw(spriteBatch);
+        }
 
         playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
         npcRectangle = new Rectangle(npc.getX(), npc.getY(), npc.getWidth(), npc.getHeight());
@@ -303,6 +306,7 @@ public class Main extends ApplicationAdapter {
 
         // Reset NPC state for the new room
         npcAlive = true;
+        swordUpgradeAvail = true;
         npcHealth = 10; // or load from map data if you have per-map health
 
         // Clear wall collision data — draw() repopulates this each frame,
@@ -336,11 +340,12 @@ public class Main extends ApplicationAdapter {
                 System.out.println("Failed with exception: " + e);
             }
         } else if (playerRectangle.overlaps(swordUpgradeRectangle)) {
-            if (playerSword < 10) {
+            if (playerSword < 10 && swordUpgradeAvail) {
                 playerSword++;
                 System.out.println("playerSword level is " + playerSword);
+                swordUpgradeAvail = false;
             } else {
-                System.out.println("sword is at max level");
+                System.out.println("sword is at max level or unavailable");
             }
         } else if (playerRectangle.overlaps(doorRectangle)) {
             changeMap(currentLoadedMap + 1);
