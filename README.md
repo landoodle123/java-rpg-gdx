@@ -7,7 +7,7 @@ This is an RPG coded in Java that is being developed for a school project.
 ![FreeBSD](https://img.shields.io/badge/FreeBSD-Untested-yellow?logo=freebsd)
 ![Android](https://img.shields.io/badge/Android-Unsupported-red?logo=android)
 
-Note: Linux compatibility was only tested on Debian 12 and Fedora 43, the former on a VM and the latter on an MS Surface Pro 5. If your distro doesn't work (despite meeting the game's official minimum spec), create an issue on the GitHub repository.
+**Note:** Linux compatibility was only tested on Debian 12 and Fedora 43, the former on a VM and the latter on an MS Surface Pro 5. If your distro doesn't work (despite meeting the game's official minimum spec), create an issue on the GitHub repository.
 
 # How to Run
 Download the .jar file associated with the operating system you are using as well as any .json level data files. Ensure that the .jar and the .jsons are in the same directory. A copy of the JDK17 is required; if you do not have one, there are multiple options, but all compatibility is tested with the Azul Zulu OpenJDK. Once that is set up, it can be run by double-clicking the .jar file or typing into a terminal `java -jar Java-RPG-GDX-{version}-{platform}.jar`.
