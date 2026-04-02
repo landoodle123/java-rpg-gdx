@@ -2,7 +2,6 @@ package io.github.landoodle123.javaRPG;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -191,7 +190,6 @@ public class Main extends ApplicationAdapter {
     private FitViewport viewport;
 
     private static Sprite swordUpgrade;
-    private Texture swordUpgradeTexture;
     static Rectangle swordUpgradeRectangle;
 
     Texture backgroundTexture;
@@ -278,7 +276,7 @@ public class Main extends ApplicationAdapter {
             System.out.println("Label failed with exception: " + e);
         }
 
-        swordUpgradeTexture = new Texture("swordupgrade.png");
+        Texture swordUpgradeTexture = new Texture("swordupgrade.png");
         swordUpgrade = new Sprite(swordUpgradeTexture);
         swordUpgrade.setSize(1, 1);
 
@@ -630,7 +628,7 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-    public void attack() throws InterruptedException {
+    public void attack() {
         // --- Hit NPC ---
         if (playerRectangle.overlaps(npcRectangle) && npcAlive) {
             System.out.println("NPC hit");
