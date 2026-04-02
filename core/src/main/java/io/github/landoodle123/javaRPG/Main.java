@@ -36,6 +36,7 @@ public class Main extends ApplicationAdapter {
 
     static class Enemy {
         float x, y;
+        float speedMultiplier = 1.5f;
         int health;
         boolean alive = true;
         Sprite sprite;
@@ -59,7 +60,7 @@ public class Main extends ApplicationAdapter {
         void update(float delta) {
             if (!alive) return;
             moveTimer += delta;
-            if (moveTimer >= MOVE_INTERVAL) {
+            if (moveTimer >= MOVE_INTERVAL * speedMultiplier) {
                 moveTimer = 0f;
                 stepTowardPlayer();
             }
