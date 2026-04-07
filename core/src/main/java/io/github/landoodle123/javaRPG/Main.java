@@ -443,7 +443,7 @@ public class Main extends ApplicationAdapter {
 
         // Stop any dialogue
         stopt1 = true;
-        talk("Player died");
+        talk("Player died skill issue haha");
         return null;
     }
 
