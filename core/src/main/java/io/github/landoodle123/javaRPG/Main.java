@@ -241,7 +241,7 @@ public class Main extends ApplicationAdapter {
     public static Runnable runTalk = () -> {
         try {
             while (!stopt1) {
-                talk();
+                talk(dialogueOptions[ThreadLocalRandom.current().nextInt(0, 3)]);
             }
         } catch (InterruptedException e) {
             System.out.println("Failed with exception: " + e);
@@ -315,7 +315,11 @@ public class Main extends ApplicationAdapter {
                             playerHealth = 0;
                             System.out.println("Player has died.");
 
-                            Gdx.app.postRunnable(Main::respawnPlayer);
+                            try {
+                                Gdx.app.postRunnable(respawnPlayer());
+                            } catch (Exception e) {
+                                System.out.println("Exception in respawnPlayer: " + e);
+                            }
                         }
                     }
                 }
@@ -424,7 +428,7 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-    public static void respawnPlayer() {
+    public static Runnable respawnPlayer() throws InterruptedException {
         System.out.println("Respawning player...");
 
         // Reset stats
@@ -439,6 +443,8 @@ public class Main extends ApplicationAdapter {
 
         // Stop any dialogue
         stopt1 = true;
+        talk("Player died");
+        return null;
     }
 
     // =========================================================================
@@ -662,10 +668,10 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-    public static void talk() throws InterruptedException {
+    public static void talk(String message) throws InterruptedException {
         JDialog d = new JDialog(f, "Conversation");
         int dialogueSelection = ThreadLocalRandom.current().nextInt(0, 3);
-        JLabel l = new JLabel(String.format("<html><body style='width: 350px; align: center'><p>%s</p></body></html>", dialogueOptions[dialogueSelection]));
+        JLabel l = new JLabel(String.format("<html><body style='width: 350px; align: center'><p>%s</p></body></html>", message));
         d.add(l);
         d.setSize(400, 400);
         d.setLocation(400, 400);
