@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.badlogic.gdx.Gdx.graphics;
 import static io.github.landoodle123.javaRPG.npc.npcRectangle;
@@ -206,7 +207,7 @@ public class Main extends ApplicationAdapter {
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon.json", "main.json", "random.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "dungeon2p3.json", "main.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
@@ -215,6 +216,7 @@ public class Main extends ApplicationAdapter {
     static Integer npcHealth        = 10;
     static Boolean npcAlive         = true;
     static Boolean swordUpgradeAvail = true;
+    static Boolean isRespawning = false;
 
     // Enemies are spawned exactly once per map load.
     // The instance flag is used in draw(); the static flag lets the static
@@ -311,15 +313,18 @@ public class Main extends ApplicationAdapter {
                         int dmg = ThreadLocalRandom.current().nextInt(7, 16); // 7-15 inclusive
                         playerHealth -= dmg;
                         System.out.println("Enemy dealt " + dmg + " damage — player HP: " + playerHealth);
-                        if (playerHealth <= 0) {
+                        if (playerHealth <= 0 && !isRespawning) {
+                            isRespawning = true;
                             playerHealth = 0;
-                            System.out.println("Player has died.");
-
-                            try {
-                                Gdx.app.postRunnable(respawnPlayer());
-                            } catch (Exception e) {
-                                System.out.println("Exception in respawnPlayer: " + e);
-                            }
+                            Gdx.app.postRunnable(() -> {
+                                try {
+                                    respawnPlayer();
+                                } catch (Exception e) {
+                                    System.out.println("Exception in respawnPlayer: " + e);
+                                } finally {
+                                    isRespawning = false;
+                                }
+                            });
                         }
                     }
                 }
@@ -428,23 +433,25 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-    public static Runnable respawnPlayer() throws InterruptedException {
+    public static void respawnPlayer() {
         System.out.println("Respawning player...");
-
-        // Reset stats
         playerHealth = 100;
         playerSword = 1;
-
-        // Reset to first map
         changeMap(0);
-
-        // Reset position (extra safety)
         playerCharacter.setPosition(0, 0);
-
-        // Stop any dialogue
         stopt1 = true;
-        talk("Player died skill issue haha");
-        return null;
+
+        // Show death message without blocking the render thread
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                null,
+                "You died haha skill issue",
+                "Skill Issue Detected",
+                JOptionPane.WARNING_MESSAGE
+            );
+        });
+
+        isRespawning = false; // if you added the guard from before
     }
 
     // =========================================================================
@@ -571,6 +578,12 @@ public class Main extends ApplicationAdapter {
     public static void changeMap(int newMapIndex) {
         if (newMapIndex >= maps.length) {
             System.out.println("No more maps to load.");
+            int result = JOptionPane.showConfirmDialog(null, "You beat the game!", "Victory", JOptionPane.DEFAULT_OPTION);
+
+            if (result == JOptionPane.OK_OPTION) {
+                // Code that runs when OK is pressed
+                System.exit(0);
+            }
             return;
         }
 
@@ -628,7 +641,12 @@ public class Main extends ApplicationAdapter {
             }
         } else if (playerRectangle.overlaps(doorRectangle)) {
             changeMap(currentLoadedMap + 1);
-            playerHealth = playerHealth + 20;
+            if (playerHealth <= 80) {
+                playerHealth = playerHealth + 20;
+            }
+            else if (playerHealth > 80) {
+                playerHealth = 100;
+            }
         } else {
             System.out.println("no overlap");
         }
@@ -669,7 +687,7 @@ public class Main extends ApplicationAdapter {
     }
 
     public static void talk(String message) throws InterruptedException {
-        JDialog d = new JDialog(f, "Conversation");
+        JDialog d = new JDialog((JFrame) null, "Conversation");
         JLabel l = new JLabel(String.format("<html><body style='width: 350px; align: center'><p>%s</p></body></html>", message));
         d.add(l);
         d.setSize(400, 400);
