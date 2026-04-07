@@ -670,7 +670,6 @@ public class Main extends ApplicationAdapter {
 
     public static void talk(String message) throws InterruptedException {
         JDialog d = new JDialog(f, "Conversation");
-        int dialogueSelection = ThreadLocalRandom.current().nextInt(0, 3);
         JLabel l = new JLabel(String.format("<html><body style='width: 350px; align: center'><p>%s</p></body></html>", message));
         d.add(l);
         d.setSize(400, 400);
