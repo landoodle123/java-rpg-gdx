@@ -1,6 +1,7 @@
 package io.github.landoodle123.javaRPG;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -202,12 +203,16 @@ public class Main extends ApplicationAdapter {
     static Sprite door;
     static Rectangle doorRectangle;
 
+    static Texture swordLevelTexture;
+    static Sprite swordUpgradeUI;
+    static String[] swordLevelTextureFileNames = {"swordl1.png", "swordl2.png", "swordl3.png", "swordl4.png", "swordl5.png", "swordl6.png", "swordl7.png", "swordl8.png", "swordl9.png","swordl10.png",};
+
     // Enemy
     private Texture enemyTexture;
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "dungeon2p3.json", "main.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main.json", "finalBoss.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
@@ -257,6 +262,9 @@ public class Main extends ApplicationAdapter {
     public void create() {
         spriteBatch = new SpriteBatch();
         npcTexture = new Texture("guy.png");
+        swordLevelTexture = new Texture(swordLevelTextureFileNames[0]);
+        swordUpgradeUI = new Sprite(swordLevelTexture);
+        swordUpgradeUI.setSize(1, 1);
         npc = new Sprite(npcTexture);
         npc.setSize(1, 1);
         npc.setY(2);
@@ -310,7 +318,7 @@ public class Main extends ApplicationAdapter {
                     if (!enemy.alive) continue;
                     Rectangle pr = playerRectangle;   // read is effectively atomic
                     if (pr != null && enemy.rectangle.overlaps(pr)) {
-                        int dmg = ThreadLocalRandom.current().nextInt(7, 16); // 7-15 inclusive
+                        int dmg = ThreadLocalRandom.current().nextInt(4, 8);
                         playerHealth -= dmg;
                         System.out.println("Enemy dealt " + dmg + " damage — player HP: " + playerHealth);
                         if (playerHealth <= 0 && !isRespawning) {
@@ -437,6 +445,8 @@ public class Main extends ApplicationAdapter {
         System.out.println("Respawning player...");
         playerHealth = 100;
         playerSword = 1;
+        swordLevelTexture = new Texture(swordLevelTextureFileNames[0]);
+        swordUpgradeUI.setTexture(swordLevelTexture);
         changeMap(0);
         playerCharacter.setPosition(0, 0);
         stopt1 = true;
@@ -544,6 +554,9 @@ public class Main extends ApplicationAdapter {
         doorRectangle        = new Rectangle(door.getX(), door.getY(), 1, 1);
         swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(),
             swordUpgrade.getWidth(), swordUpgrade.getHeight());
+        swordUpgradeUI.setX(1);
+        swordUpgradeUI.setY(7);
+        swordUpgradeUI.draw(spriteBatch, 1f);
         spriteBatch.end();
         spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(
             0, 0,
@@ -635,6 +648,8 @@ public class Main extends ApplicationAdapter {
             if (playerSword < 10 && swordUpgradeAvail) {
                 playerSword++;
                 System.out.println("playerSword level is " + playerSword);
+                swordLevelTexture = new Texture(swordLevelTextureFileNames[playerSword - 1]);
+                swordUpgradeUI.setTexture(swordLevelTexture);
                 swordUpgradeAvail = false;
             } else {
                 System.out.println("sword is at max level or unavailable");
@@ -698,6 +713,6 @@ public class Main extends ApplicationAdapter {
         d.setVisible(false);
         stopt1 = true;
         d.dispose();
-        System.out.println("If this message is showing something has probably gone wrong.");
+        System.out.println("Dialog thread ended.");
     }
 }
