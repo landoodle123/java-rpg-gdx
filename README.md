@@ -12,6 +12,11 @@ This is an RPG coded in Java that is being developed for a school project.
 # How to Run
 Download the .jar file associated with the operating system you are using as well as any .json level data files. Ensure that the .jar and the .jsons are in the same directory. A copy of the JDK17 is required; if you do not have one, there are multiple options, but all compatibility is tested with the Azul Zulu OpenJDK. Once that is set up, it can be run by double-clicking the .jar file or typing into a terminal `java -jar Java-RPG-GDX-{version}-{platform}.jar`.
 
+# Controls
+Arrow keys to move
+Space to interact
+Alt to attack
+
 # System Requirements:
 ## Minimum:
 * CPU: 64-bit dual-core (or single core with hyperthreading)
