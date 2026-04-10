@@ -19,17 +19,17 @@ Download the .jar file associated with the operating system you are using as wel
 
 # System Requirements:
 ## Minimum:
-* CPU: 64-bit dual-core (or single core with hyperthreading)
+* CPU: Intel Core 2 Duo E4300 or AMD equivalent
 * RAM: 4GB
 * Storage: 25 MB free
 * JVM version: 17
-* GPU: OpenGL ES 2.0 supported
+* GPU: NVIDIA Geforce 6200, ATI Radeon X1300
 * OS: Windows 10/Server 2016 or higher, Linux 4.14 or higher, MacOS 10.15 (Catalina) or higher
 ## Recommended:
 * CPU: Intel Core i5-2500K or AMD FX-8350
 * RAM: 4GB
 * Storage: 50 MB free
 * JVM version: 17 or higher
-* GPU: OpenGL ES 2.0 or higher, 512MB VRAM or higher
+* GPU: Geforce 8600 or Radeon X1600
 * OS: Windows 10 or higher. Linux 5.x or higher, MacOS 10.15 or higher
 
