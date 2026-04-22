@@ -12,19 +12,24 @@ This is an RPG coded in Java that is being developed for a school project.
 # How to Run
 Download the .jar file associated with the operating system you are using as well as any .json level data files. Ensure that the .jar and the .jsons are in the same directory. A copy of the JDK17 is required; if you do not have one, there are multiple options, but all compatibility is tested with the Azul Zulu OpenJDK. Once that is set up, it can be run by double-clicking the .jar file or typing into a terminal `java -jar Java-RPG-GDX-{version}-{platform}.jar`.
 
+# Controls
+* Arrow keys to move
+* Space to interact
+* Alt to attack
+
 # System Requirements:
 ## Minimum:
-* CPU: 64-bit dual-core (or single core with hyperthreading)
+* CPU: Intel Core 2 Duo E4300 or AMD equivalent
 * RAM: 4GB
 * Storage: 25 MB free
 * JVM version: 17
-* GPU: OpenGL ES 2.0 supported
+* GPU: NVIDIA Geforce 6200, ATI Radeon X1300
 * OS: Windows 10/Server 2016 or higher, Linux 4.14 or higher, MacOS 10.15 (Catalina) or higher
 ## Recommended:
 * CPU: Intel Core i5-2500K or AMD FX-8350
 * RAM: 4GB
 * Storage: 50 MB free
 * JVM version: 17 or higher
-* GPU: OpenGL ES 2.0 or higher, 512MB VRAM or higher
+* GPU: Geforce 8600 or Radeon X1600
 * OS: Windows 10 or higher. Linux 5.x or higher, MacOS 10.15 or higher
 
