@@ -41,7 +41,7 @@ public class Main extends ApplicationAdapter {
         int health;
         boolean alive = true;
         Sprite sprite;
-        Rectangle rectangle;
+        static Rectangle rectangle;
 
         // Enemy steps toward the player once every MOVE_INTERVAL seconds
         float moveTimer = 0f;
