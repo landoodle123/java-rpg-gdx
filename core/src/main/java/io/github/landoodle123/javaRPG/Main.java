@@ -41,23 +41,22 @@ public class Main extends ApplicationAdapter {
         int health;
         boolean alive = true;
         Sprite sprite;
-        static Rectangle rectangle;
+        // REMOVED 'static' so every enemy has its own hitbox!
+        Rectangle rectangle;
 
-        // Enemy steps toward the player once every MOVE_INTERVAL seconds
         float moveTimer = 0f;
         static final float MOVE_INTERVAL = 0.55f;
 
         Enemy(float startX, float startY, Texture texture) {
             this.x = startX;
             this.y = startY;
-            this.health = 15 + playerSword;   // scales with current sword level
+            this.health = 15 + playerSword;
             sprite = new Sprite(texture);
             sprite.setSize(1f, 1f);
             sprite.setPosition(x, y);
-            rectangle = new Rectangle(x, y, 1f, 1f);
+            this.rectangle = new Rectangle(x, y, 1f, 1f);
         }
 
-        /** Advance pathfinding timer; move one step when interval elapses. */
         void update(float delta) {
             if (!alive) return;
             moveTimer += delta;
@@ -73,14 +72,6 @@ public class Main extends ApplicationAdapter {
             if (alive) sprite.draw(batch);
         }
 
-        // -----------------------------------------------------------------
-        // Grid A* pathfinding
-        // -----------------------------------------------------------------
-
-        /**
-         * Move the enemy one grid cell closer to the player.
-         * The world is 8x8 integer cells; we snap positions to nearest int.
-         */
         private void stepTowardPlayer() {
             int ex = Math.round(x);
             int ey = Math.round(y);
@@ -90,16 +81,24 @@ public class Main extends ApplicationAdapter {
 
             int[] next = aStarNextStep(ex, ey, px, py);
             if (next != null) {
-                x = next[0];
-                y = next[1];
+                // NEW: Check if another alive enemy is already at the target tile
+                boolean cellOccupied = false;
+                for (Enemy other : enemies) {
+                    if (other != this && other.alive &&
+                        Math.round(other.x) == next[0] &&
+                        Math.round(other.y) == next[1]) {
+                        cellOccupied = true;
+                        break;
+                    }
+                }
+
+                if (!cellOccupied) {
+                    x = next[0];
+                    y = next[1];
+                }
             }
         }
 
-        /**
-         * Grid A* on an 8x8 board.
-         * Returns [nx, ny] of the first step from (sx,sy) toward (gx,gy),
-         * or null when no path exists.
-         */
         private static int[] aStarNextStep(int sx, int sy, int gx, int gy) {
             final int SIZE = 8;
             boolean[][] closed  = new boolean[SIZE][SIZE];
@@ -120,7 +119,6 @@ public class Main extends ApplicationAdapter {
             int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
 
             while (!open.isEmpty()) {
-                // Pop lowest fCost node
                 int bi = 0;
                 for (int i = 1; i < open.size(); i++) {
                     if (fCost[open.get(i)[0]][open.get(i)[1]] <
@@ -130,7 +128,6 @@ public class Main extends ApplicationAdapter {
                 int cx = cur[0], cy = cur[1];
 
                 if (cx == gx && cy == gy) {
-                    // Walk parent chain back to find the first step
                     int tx = cx, ty = cy;
                     while (true) {
                         int ppx = parent[tx][ty][0];
@@ -148,7 +145,6 @@ public class Main extends ApplicationAdapter {
                     int ny = cy + d[1];
                     if (nx < 0 || nx >= SIZE || ny < 0 || ny >= SIZE) continue;
                     if (closed[nx][ny]) continue;
-                    // The goal cell (player position) is passable even if it looks like a wall
                     if (isWall(nx, ny) && !(nx == gx && ny == gy)) continue;
 
                     int ng = gCost[cx][cy] + 1;
@@ -168,7 +164,6 @@ public class Main extends ApplicationAdapter {
             return Math.abs(x1 - x2) + Math.abs(y1 - y2);
         }
 
-        /** True when the integer grid cell (cx, cy) is occupied by a wall. */
         private static boolean isWall(int cx, int cy) {
             for (Rectangle wr : wallRectangles) {
                 if ((int) wr.getX() == cx && (int) wr.getY() == cy) return true;
@@ -212,7 +207,7 @@ public class Main extends ApplicationAdapter {
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main.json", "finalBoss.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main.json", "dungeon4.json", "upgraderoom.json", "dungeon5.json", "main.json", "upgraderoom.json", "dungeon6.json", "finalBoss.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
@@ -234,11 +229,6 @@ public class Main extends ApplicationAdapter {
     public static Boolean stopt1 = false;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
 
-    /**
-     * Single-threaded scheduler: once per second, check every living enemy
-     * against the player rectangle and deal 7-15 damage on overlap.
-     * Runs entirely off the render thread — no blocking.
-     */
     private static final ScheduledExecutorService damageScheduler =
         Executors.newSingleThreadScheduledExecutor();
 
@@ -312,15 +302,19 @@ public class Main extends ApplicationAdapter {
         enemyTexture = new Texture("evilman.png");
 
         // Non-blocking enemy damage — fires every second off the render thread
+        // inside create()
         damageScheduler.scheduleAtFixedRate(() -> {
             try {
+                // Iterate through the actual list of enemy instances
                 for (Enemy enemy : enemies) {
                     if (!enemy.alive) continue;
-                    Rectangle pr = playerRectangle;   // read is effectively atomic
-                    if (pr != null && enemy.rectangle.overlaps(pr)) {
+
+                    // Use the rectangle belonging to THIS specific enemy instance
+                    if (playerRectangle != null && enemy.rectangle.overlaps(playerRectangle)) {
                         int dmg = ThreadLocalRandom.current().nextInt(4, 8);
                         playerHealth -= dmg;
                         System.out.println("Enemy dealt " + dmg + " damage — player HP: " + playerHealth);
+
                         if (playerHealth <= 0 && !isRespawning) {
                             isRespawning = true;
                             playerHealth = 0;
@@ -334,13 +328,16 @@ public class Main extends ApplicationAdapter {
                                 }
                             });
                         }
+                        // Break after taking damage from one enemy to prevent
+                        // getting hit by 5 enemies in the exact same millisecond
+                        break;
                     }
                 }
             } catch (Exception e) {
                 System.out.println("Damage scheduler error: " + e);
             }
         }, 1, 1, TimeUnit.SECONDS);
-    }
+        }
     @Override
     public void render() {
         // Sync the static spawn flag set by changeMap() into the instance field
@@ -479,91 +476,67 @@ public class Main extends ApplicationAdapter {
         Integer[][] board = parseBoard(maps[currentLoadedMap]);
         wallRectangles.clear();
 
-        // Collect tile-2 spawn positions only when a new map has just loaded
+        // RESET: Move special objects off-screen every frame.
+        // They will only be moved back if found in the current board loop.
+        npc.setPosition(-10, -10);
+        swordUpgrade.setPosition(-10, -10);
+        door.setPosition(-10, -10);
+
         List<int[]> spawnPoints = new ArrayList<>();
 
         for (int row = 0; row < board.length; row++) {
-            int currentX = 0;
-            int currentY = 7 - row;   // JSON row 0 = top of screen = y=7 in world space
+            for (int col = 0; col < board[row].length; col++) {
+                int currentX = col;
+                int currentY = 7 - row;
+                int tile = board[row][col];
 
-            for (Integer tile : board[row]) {
                 switch (tile) {
-                    case 0 -> {}   // empty
-                    case 1 -> {   // wall
-                        wall.setX(currentX);
-                        wall.setY(currentY);
+                    case 0 -> {}
+                    case 1 -> {
+                        wall.setPosition(currentX, currentY);
                         wall.draw(spriteBatch);
                         wallRectangles.add(new Rectangle(currentX, currentY, 1, 1));
                     }
-                    case 2 -> {   // enemy spawn point
-                        // Record position; actual Enemy objects are created below
-                        // only on the first frame after a map load.
-                        if (pendingEnemySpawn) {
-                            spawnPoints.add(new int[]{currentX, currentY});
-                        }
+                    case 2 -> {
+                        if (pendingEnemySpawn) spawnPoints.add(new int[]{currentX, currentY});
                     }
-                    case 3 -> {   // NPC
-                        npc.setX(currentX);
-                        npc.setY(currentY);
-                    }
-                    case 4 -> {   // sword upgrade
-                        swordUpgrade.setX(currentX);
-                        swordUpgrade.setY(currentY);
-                    }
-                    case 5 -> {   // door
-                        door.setX(currentX);
-                        door.setY(currentY);
-                    }
-                    default -> throw new Exception(
-                        "Invalid tile value: " + tile + " at row " + row + ", col " + currentX);
+                    case 3 -> npc.setPosition(currentX, currentY);
+                    case 4 -> swordUpgrade.setPosition(currentX, currentY);
+                    case 5 -> door.setPosition(currentX, currentY);
                 }
-                currentX++;
             }
         }
 
-        // Spawn enemies once per map load from every tile-2 position found above
         if (pendingEnemySpawn) {
             enemies.clear();
             for (int[] sp : spawnPoints) {
                 enemies.add(new Enemy(sp[0], sp[1], enemyTexture));
             }
             pendingEnemySpawn = false;
-            System.out.println("Spawned " + enemies.size() + " enemy/enemies for map: " + maps[currentLoadedMap]);
         }
 
-        // Draw world objects
-        if (npcAlive)          { npc.draw(spriteBatch); }
-        door.draw(spriteBatch);
-        if (swordUpgradeAvail) { swordUpgrade.draw(spriteBatch); }
+        // Only draw these if they were actually positioned within the map
+        if (npcAlive && npc.getX() >= 0) npc.draw(spriteBatch);
+        if (door.getX() >= 0) door.draw(spriteBatch);
+        if (swordUpgradeAvail && swordUpgrade.getX() >= 0) swordUpgrade.draw(spriteBatch);
 
-        // Draw enemies (dead enemies are skipped inside draw())
         for (Enemy enemy : enemies) {
             enemy.draw(spriteBatch);
         }
 
-        // Draw player on top
-        if (playerHealth > 0) {
-            playerCharacter.draw(spriteBatch);
-        }
+        if (playerHealth > 0) playerCharacter.draw(spriteBatch);
 
-        // Rebuild collision rectangles every frame
-        playerRectangle      = new Rectangle(playerCharacter.getX(), playerCharacter.getY(),
-            playerCharacter.getWidth(), playerCharacter.getHeight());
-        npcRectangle         = new Rectangle(npc.getX(), npc.getY(),
-            npc.getWidth(), npc.getHeight());
-        doorRectangle        = new Rectangle(door.getX(), door.getY(), 1, 1);
-        swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(),
-            swordUpgrade.getWidth(), swordUpgrade.getHeight());
-        swordUpgradeUI.setX(1);
-        swordUpgradeUI.setY(7);
+        // Update collision rectangles
+        playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
+        npcRectangle = new Rectangle(npc.getX(), npc.getY(), 1, 1);
+        doorRectangle = new Rectangle(door.getX(), door.getY(), 1, 1);
+        swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(), 1, 1);
+
+        swordUpgradeUI.setPosition(1, 7);
         swordUpgradeUI.draw(spriteBatch, 1f);
         spriteBatch.end();
-        spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(
-            0, 0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()
-        ));
 
+        spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         spriteBatch.begin();
         font.draw(spriteBatch, "HP: " + playerHealth, 10, Gdx.graphics.getHeight() - 10);
         spriteBatch.end();
@@ -655,12 +628,26 @@ public class Main extends ApplicationAdapter {
                 System.out.println("sword is at max level or unavailable");
             }
         } else if (playerRectangle.overlaps(doorRectangle)) {
-            changeMap(currentLoadedMap + 1);
-            if (playerHealth <= 80) {
-                playerHealth = playerHealth + 20;
+            boolean anyEnemyAlive = false;
+
+            // Check if any enemy is alive
+            for (Enemy enemy : enemies) {
+                if (enemy.alive) {
+                    anyEnemyAlive = true;
+                    break;
+                }
             }
-            else if (playerHealth > 80) {
-                playerHealth = 100;
+
+            // Only change map if no enemies are alive or if there are no enemies
+            if (!anyEnemyAlive) {
+                changeMap(currentLoadedMap + 1);
+
+                // Heal the player
+                if (playerHealth <= 80) {
+                    playerHealth += 20;
+                } else {
+                    playerHealth = 100;
+                }
             }
         } else {
             System.out.println("no overlap");
@@ -669,17 +656,9 @@ public class Main extends ApplicationAdapter {
 
     public void attack() {
         // --- Hit NPC ---
-        if (playerRectangle.overlaps(npcRectangle) && npcAlive) {
+        // Added npc.getX() check to ensure they aren't hit while "hidden" off-screen
+        if (playerRectangle.overlaps(npcRectangle) && npcAlive && npc.getX() >= 0) {
             System.out.println("NPC hit");
-            spriteBatch.begin();
-            charTexture = new Texture("stabbystab.png");
-            playerCharacter.setTexture(charTexture);
-            playerCharacter.draw(spriteBatch);
-            charTexture = new Texture("player.png");
-            playerCharacter.setTexture(charTexture);
-            playerCharacter.draw(spriteBatch);
-            spriteBatch.end();
-
             npcHealth -= playerSword;
             if (npcHealth <= 0) {
                 npcAlive = false;
@@ -687,9 +666,11 @@ public class Main extends ApplicationAdapter {
             }
         }
 
-        // --- Hit enemies ---
+        // --- Hit individual enemies ---
         for (Enemy enemy : enemies) {
             if (!enemy.alive) continue;
+
+            // Use the instance-specific rectangle
             if (playerRectangle.overlaps(enemy.rectangle)) {
                 enemy.health -= playerSword;
                 System.out.println("Enemy hit — HP remaining: " + enemy.health);
@@ -713,6 +694,6 @@ public class Main extends ApplicationAdapter {
         d.setVisible(false);
         stopt1 = true;
         d.dispose();
-        System.out.println("Dialog thread ended.");
+        System.out.println("Dialog thread ended");
     }
 }
