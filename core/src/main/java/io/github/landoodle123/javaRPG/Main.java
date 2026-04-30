@@ -207,7 +207,7 @@ public class Main extends ApplicationAdapter {
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main.json", "dungeon4.json", "upgraderoom.json", "dungeon5.json", "main.json", "upgraderoom.json", "dungeon6.json", "finalBoss.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main.json", "dungeon4.json", "upgraderoom.json", "dungeon5.json", "main.json", "upgraderoom.json", "dungeon6.json", "finalBoss.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
