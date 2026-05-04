@@ -1,7 +1,6 @@
 package io.github.landoodle123.javaRPG;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -26,7 +25,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.badlogic.gdx.Gdx.graphics;
 import static io.github.landoodle123.javaRPG.npc.npcRectangle;
@@ -207,7 +205,7 @@ public class Main extends ApplicationAdapter {
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main.json", "dungeon4.json", "upgraderoom.json", "dungeon5.json", "main.json", "upgraderoom.json", "dungeon6.json", "finalBoss.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "upgradeRoom.json", "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main2.json", "dungeon4.json", "upgraderoom.json", "dungeon5.json", "main.json", "upgraderoom.json", "dungeon6.json", "main.json", "upgraderoom.json", "dungeon7.json", "main2.json", "upgraderoom.json", "finalBoss.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
@@ -224,8 +222,6 @@ public class Main extends ApplicationAdapter {
     private boolean       pendingEnemySpawn       = true;
     private static boolean pendingEnemySpawnStatic = false;
 
-    // Dialogue / threading
-    static JFrame   f;
     public static Boolean stopt1 = false;
     static ExecutorService executor = Executors.newFixedThreadPool(3);
 
@@ -449,14 +445,12 @@ public class Main extends ApplicationAdapter {
         stopt1 = true;
 
         // Show death message without blocking the render thread
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(
-                null,
-                "You died haha skill issue",
-                "Skill Issue Detected",
-                JOptionPane.WARNING_MESSAGE
-            );
-        });
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+            null,
+            "You died haha skill issue",
+            "Skill Issue Detected",
+            JOptionPane.WARNING_MESSAGE
+        ));
 
         isRespawning = false; // if you added the guard from before
     }
@@ -486,23 +480,22 @@ public class Main extends ApplicationAdapter {
 
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
-                int currentX = col;
                 int currentY = 7 - row;
                 int tile = board[row][col];
 
                 switch (tile) {
                     case 0 -> {}
                     case 1 -> {
-                        wall.setPosition(currentX, currentY);
+                        wall.setPosition(col, currentY);
                         wall.draw(spriteBatch);
-                        wallRectangles.add(new Rectangle(currentX, currentY, 1, 1));
+                        wallRectangles.add(new Rectangle(col, currentY, 1, 1));
                     }
                     case 2 -> {
-                        if (pendingEnemySpawn) spawnPoints.add(new int[]{currentX, currentY});
+                        if (pendingEnemySpawn) spawnPoints.add(new int[]{col, currentY});
                     }
-                    case 3 -> npc.setPosition(currentX, currentY);
-                    case 4 -> swordUpgrade.setPosition(currentX, currentY);
-                    case 5 -> door.setPosition(currentX, currentY);
+                    case 3 -> npc.setPosition(col, currentY);
+                    case 4 -> swordUpgrade.setPosition(col, currentY);
+                    case 5 -> door.setPosition(col, currentY);
                 }
             }
         }
