@@ -216,6 +216,7 @@ public class Main extends ApplicationAdapter {
     static Boolean swordUpgradeAvail = true;
     static Boolean isRespawning = false;
 
+
     // Enemies are spawned exactly once per map load.
     // The instance flag is used in draw(); the static flag lets the static
     // changeMap() method signal the next frame that a spawn is needed.
