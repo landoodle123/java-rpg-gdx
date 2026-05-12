@@ -205,7 +205,7 @@ public class Main extends ApplicationAdapter {
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "upgradeRoom.json", "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main2.json", "dungeon4.json", "upgraderoom.json", "dungeon5.json", "main.json", "upgraderoom.json", "dungeon6.json", "main.json", "upgraderoom.json", "dungeon7.json", "main2.json", "upgraderoom.json", "finalBoss.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "upgradeRoom.json", "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main2.json", "dungeon4.json", "upgradeRoom.json", "dungeon5.json", "main.json", "upgradeRoom.json", "dungeon6.json", "main.json", "upgradeRoom.json", "dungeon7.json", "upgradeRoom.json", "dungeon8.json", "main.json", "upgradeRoom.json", "dungeon9.json", "main2.json", "upgradeRoom.json", "dungeon10.json", "main2.json", "upgraderoom.json", "finalBoss.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
@@ -356,7 +356,7 @@ public class Main extends ApplicationAdapter {
         viewport.update(width, height, true);
     }
 
-    @Override
+
     public void dispose() {
         spriteBatch.dispose();
         npcTexture.dispose();
@@ -435,7 +435,7 @@ public class Main extends ApplicationAdapter {
         }
     }
 
-    public static void respawnPlayer() {
+    public void respawnPlayer() {
         System.out.println("Respawning player...");
         playerHealth = 100;
         playerSword = 1;
@@ -555,13 +555,14 @@ public class Main extends ApplicationAdapter {
         return rows;
     }
 
-    public static void changeMap(int newMapIndex) {
+    public void changeMap(int newMapIndex) {
         if (newMapIndex >= maps.length) {
             System.out.println("No more maps to load.");
             int result = JOptionPane.showConfirmDialog(null, "You beat the game!", "Victory", JOptionPane.DEFAULT_OPTION);
 
             if (result == JOptionPane.OK_OPTION) {
                 // Code that runs when OK is pressed
+                dispose();
                 System.exit(0);
             }
             return;
@@ -604,7 +605,7 @@ public class Main extends ApplicationAdapter {
     // -------------------------
     // Actions
     // -------------------------
-    public static void use() {
+    public void use() {
         if (playerRectangle.overlaps(npcRectangle)) {
             try {
                 if (npcAlive) { executor.submit(runTalk); }
