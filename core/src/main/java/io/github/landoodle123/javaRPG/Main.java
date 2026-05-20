@@ -205,7 +205,13 @@ public class Main extends ApplicationAdapter {
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "upgradeRoom.json", "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json", "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main2.json", "dungeon4.json", "upgradeRoom.json", "dungeon5.json", "main.json", "upgradeRoom.json", "dungeon6.json", "main.json", "upgradeRoom.json", "dungeon7.json", "upgradeRoom.json", "dungeon8.json", "main.json", "upgradeRoom.json", "dungeon9.json", "main2.json", "upgradeRoom.json", "dungeon10.json", "main2.json", "upgraderoom.json", "finalBoss.json"};
+    static String[] maps = {"main.json", "dungeon1.json", "main.json", "upgradeRoom.json",
+        "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json",
+        "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main2.json", "dungeon4.json",
+        "upgradeRoom.json", "dungeon5.json", "main.json", "upgradeRoom.json", "dungeon6.json",
+        "main.json", "upgradeRoom.json", "dungeon7.json", "upgradeRoom.json", "dungeon8.json",
+        "main.json", "upgradeRoom.json", "dungeon9.json", "main2.json", "upgradeRoom.json",
+        "dungeon10.json", "main2.json", "upgraderoom.json", "finalBoss.json"};
     static Integer currentLoadedMap = 0;
 
     // Game state
