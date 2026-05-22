@@ -198,7 +198,8 @@ public class Main extends ApplicationAdapter {
 
     static Texture swordLevelTexture;
     static Sprite swordUpgradeUI;
-    static String[] swordLevelTextureFileNames = {"swordl1.png", "swordl2.png", "swordl3.png", "swordl4.png", "swordl5.png", "swordl6.png", "swordl7.png", "swordl8.png", "swordl9.png","swordl10.png",};
+    static String[] swordLevelTextureFileNames = {"swordl1.png", "swordl2.png", "swordl3.png", "swordl4.png",
+        "swordl5.png", "swordl6.png", "swordl7.png", "swordl8.png", "swordl9.png","swordl10.png",};
 
     // Enemy
     private Texture enemyTexture;
