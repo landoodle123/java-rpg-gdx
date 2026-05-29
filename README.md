@@ -1,5 +1,5 @@
 # Java RPG
-This is an RPG coded in Java that is being developed for a school project.
+This is an "RPG" coded in Java that is being developed for a school project. It isn't *really* an RPG. The gameplay consists of moving through dungeons, fighting enemies, and talking to NPCs. Any suggestions for future updates can be created via GitHub issues.
 
 ![Windows](https://img.shields.io/badge/Windows-Supported-lightgreen?logo=windows)
 ![macOS](https://img.shields.io/badge/macOS-Supported-lightgreen?logo=apple)
@@ -7,10 +7,10 @@ This is an RPG coded in Java that is being developed for a school project.
 ![FreeBSD](https://img.shields.io/badge/FreeBSD-Untested-yellow?logo=freebsd)
 ![Android](https://img.shields.io/badge/Android-Unsupported-red?logo=android)
 
-**Note:** Linux compatibility was only tested on Debian 12 and Fedora 43, the former on a VM and the latter on an MS Surface Pro 5. If your distro doesn't work (despite meeting the game's official minimum spec), create an issue on the GitHub repository.
+Linux compatibility was tested on Debian and Fedora; if it does not work on a distro that uses a Linux version of 4.14 or higher, create an issue on this GitHub page
 
 # How to Run
-Download the .jar file associated with the operating system you are using as well as any .json level data files. Ensure that the .jar and the .jsons are in the same directory. A copy of the JDK17 is required; if you do not have one, there are multiple options, but all compatibility is tested with the Azul Zulu OpenJDK. Once that is set up, it can be run by double-clicking the .jar file or typing into a terminal `java -jar Java-RPG-GDX-{version}-{platform}.jar`.
+Download the release .7z file associated with your platform (if you are unsure, choose "Other"). Extract the 7z file with a tool like 7-Zip or WinRar. Once the file is extracted, go into the folder, and either double-click the .JAR file or run `java -jar Java-RPG-GDX-{version}-{platform}.jar`. Make sure you have a copy of the Java Runtime Environment and Java Virtual Machine version 17 or greater, or else the app will not launch.
 
 # Controls
 * Arrow keys to move
