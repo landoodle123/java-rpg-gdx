@@ -1,4 +1,10 @@
 package io.github.landoodle123.javaRPG;
+
+import static com.badlogic.gdx.Gdx.graphics;
+import static io.github.landoodle123.javaRPG.npc.*;
+import static io.github.landoodle123.javaRPG.player.*;
+
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -10,28 +16,23 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.*;
-import org.json.*;
-
-import javax.swing.*;
-import java.nio.file.Paths;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static com.badlogic.gdx.Gdx.graphics;
-import static io.github.landoodle123.javaRPG.player.*;
-import static io.github.landoodle123.javaRPG.npc.*;
+import java.util.concurrent.TimeUnit;
+import javax.swing.*;
+import org.json.*;
 
 public class Main extends ApplicationAdapter {
 
     static class Enemy {
+
         float x, y;
         float speedMultiplier = 1.5f;
         int health;
@@ -80,9 +81,12 @@ public class Main extends ApplicationAdapter {
                 // NEW: Check if another alive enemy is already at the target tile
                 boolean cellOccupied = false;
                 for (Enemy other : enemies) {
-                    if (other != this && other.alive &&
+                    if (
+                        other != this &&
+                        other.alive &&
                         Math.round(other.x) == next[0] &&
-                        Math.round(other.y) == next[1]) {
+                        Math.round(other.y) == next[1]
+                    ) {
                         cellOccupied = true;
                         break;
                     }
@@ -97,40 +101,46 @@ public class Main extends ApplicationAdapter {
 
         private static int[] aStarNextStep(int sx, int sy, int gx, int gy) {
             final int SIZE = 8;
-            boolean[][] closed  = new boolean[SIZE][SIZE];
-            int[][][]   parent  = new int[SIZE][SIZE][2];
-            int[][]     gCost   = new int[SIZE][SIZE];
-            int[][]     fCost   = new int[SIZE][SIZE];
+            boolean[][] closed = new boolean[SIZE][SIZE];
+            int[][][] parent = new int[SIZE][SIZE][2];
+            int[][] gCost = new int[SIZE][SIZE];
+            int[][] fCost = new int[SIZE][SIZE];
 
-            for (int[] row : gCost)  Arrays.fill(row, Integer.MAX_VALUE);
-            for (int[] row : fCost)  Arrays.fill(row, Integer.MAX_VALUE);
-            for (int[][] plane : parent) for (int[] cell : plane) Arrays.fill(cell, -1);
+            for (int[] row : gCost) Arrays.fill(row, Integer.MAX_VALUE);
+            for (int[] row : fCost) Arrays.fill(row, Integer.MAX_VALUE);
+            for (int[][] plane : parent)
+                for (int[] cell : plane) Arrays.fill(cell, -1);
 
             gCost[sx][sy] = 0;
             fCost[sx][sy] = manhattan(sx, sy, gx, gy);
 
             List<int[]> open = new ArrayList<>();
-            open.add(new int[]{sx, sy});
+            open.add(new int[] { sx, sy });
 
-            int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+            int[][] dirs = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
 
             while (!open.isEmpty()) {
                 int bi = 0;
                 for (int i = 1; i < open.size(); i++) {
-                    if (fCost[open.get(i)[0]][open.get(i)[1]] <
-                        fCost[open.get(bi)[0]][open.get(bi)[1]]) bi = i;
+                    if (
+                        fCost[open.get(i)[0]][open.get(i)[1]] <
+                        fCost[open.get(bi)[0]][open.get(bi)[1]]
+                    ) bi = i;
                 }
                 int[] cur = open.remove(bi);
-                int cx = cur[0], cy = cur[1];
+                int cx = cur[0],
+                    cy = cur[1];
 
                 if (cx == gx && cy == gy) {
-                    int tx = cx, ty = cy;
+                    int tx = cx,
+                        ty = cy;
                     while (true) {
                         int ppx = parent[tx][ty][0];
                         int ppy = parent[tx][ty][1];
-                        if (ppx == sx && ppy == sy) return new int[]{tx, ty};
+                        if (ppx == sx && ppy == sy) return new int[] { tx, ty };
                         if (ppx == -1) return null;
-                        tx = ppx; ty = ppy;
+                        tx = ppx;
+                        ty = ppy;
                     }
                 }
 
@@ -149,7 +159,7 @@ public class Main extends ApplicationAdapter {
                         parent[nx][ny][1] = cy;
                         gCost[nx][ny] = ng;
                         fCost[nx][ny] = ng + manhattan(nx, ny, gx, gy);
-                        open.add(new int[]{nx, ny});
+                        open.add(new int[] { nx, ny });
                     }
                 }
             }
@@ -196,36 +206,73 @@ public class Main extends ApplicationAdapter {
 
     static Texture swordLevelTexture;
     static Sprite swordUpgradeUI;
-    static String[] swordLevelTextureFileNames = {"swordl1.png", "swordl2.png", "swordl3.png", "swordl4.png",
-        "swordl5.png", "swordl6.png", "swordl7.png", "swordl8.png", "swordl9.png","swordl10.png",};
+    static String[] swordLevelTextureFileNames = {
+        "swordl1.png",
+        "swordl2.png",
+        "swordl3.png",
+        "swordl4.png",
+        "swordl5.png",
+        "swordl6.png",
+        "swordl7.png",
+        "swordl8.png",
+        "swordl9.png",
+        "swordl10.png",
+    };
 
     // Enemy
     private Texture enemyTexture;
     static ArrayList<Enemy> enemies = new ArrayList<>();
 
     // Map
-    static String[] maps = {"main.json", "dungeon1.json", "main.json", "upgradeRoom.json",
-        "dungeon2p1.json", "dungeon2p2.json", "main.json", "dungeon2p3.json", "main.json",
-        "upgradeRoom.json", "dungeon3.json", "upgradeRoom.json", "main2.json", "dungeon4.json",
-        "upgradeRoom.json", "dungeon5.json", "main.json", "upgradeRoom.json", "dungeon6.json",
-        "main.json", "upgradeRoom.json", "dungeon7.json", "upgradeRoom.json", "dungeon8.json",
-        "main.json", "upgradeRoom.json", "dungeon9.json", "main2.json", "upgradeRoom.json",
-        "dungeon10.json", "main2.json", "upgraderoom.json", "finalBoss.json"};
+    static String[] maps = {
+        "main.json",
+        "dungeon1.json",
+        "main.json",
+        "upgradeRoom.json",
+        "dungeon2p1.json",
+        "dungeon2p2.json",
+        "main.json",
+        "dungeon2p3.json",
+        "main.json",
+        "upgradeRoom.json",
+        "dungeon3.json",
+        "upgradeRoom.json",
+        "main2.json",
+        "dungeon4.json",
+        "upgradeRoom.json",
+        "dungeon5.json",
+        "main.json",
+        "upgradeRoom.json",
+        "dungeon6.json",
+        "main.json",
+        "upgradeRoom.json",
+        "dungeon7.json",
+        "upgradeRoom.json",
+        "dungeon8.json",
+        "main.json",
+        "upgradeRoom.json",
+        "dungeon9.json",
+        "main2.json",
+        "upgradeRoom.json",
+        "dungeon10.json",
+        "main2.json",
+        "upgraderoom.json",
+        "finalBoss.json",
+    };
     static Integer currentLoadedMap = 0;
 
     // Game state
-    static Integer playerHealth     = 100;
-    static Integer playerSword      = 1;
-    static Integer npcHealth        = 10;
-    static Boolean npcAlive         = true;
+    static Integer playerHealth = 100;
+    static Integer playerSword = 1;
+    static Integer npcHealth = 10;
+    static Boolean npcAlive = true;
     static Boolean swordUpgradeAvail = true;
     static Boolean isRespawning = false;
-
 
     // Enemies are spawned exactly once per map load.
     // The instance flag is used in draw(); the static flag lets the static
     // changeMap() method signal the next frame that a spawn is needed.
-    private boolean       pendingEnemySpawn       = true;
+    private boolean pendingEnemySpawn = true;
     private static boolean pendingEnemySpawnStatic = false;
 
     public static Boolean stopt1 = false;
@@ -240,7 +287,11 @@ public class Main extends ApplicationAdapter {
     public static Runnable runTalk = () -> {
         try {
             while (!stopt1) {
-                talk(dialogueOptions[ThreadLocalRandom.current().nextInt(0, 3)]);
+                talk(
+                    io.github.landoodle123.javaRPG.npc.getDialogueOptions()[
+                        ThreadLocalRandom.current().nextInt(0, 3)
+                    ]
+                );
             }
         } catch (InterruptedException e) {
             System.out.println("Failed with exception: " + e);
@@ -291,10 +342,10 @@ public class Main extends ApplicationAdapter {
         playerCharacter = new Sprite(charTexture);
         playerCharacter.setSize(0.85f, 0.85f);
 
-        viewport        = new FitViewport(8, 8);
+        viewport = new FitViewport(8, 8);
         backgroundTexture = new Texture("grassbg.png");
-        wallTexture     = new Texture("wall.png");
-        wall            = new Sprite(wallTexture);
+        wallTexture = new Texture("wall.png");
+        wall = new Sprite(wallTexture);
         wall.setSize(1, 1);
 
         doorTexture = new Texture("door.png");
@@ -304,58 +355,79 @@ public class Main extends ApplicationAdapter {
         enemyTexture = new Texture("evilman.png");
         playerCharacter = new Sprite(charTexture);
         playerCharacter.setSize(0.85f, 0.85f);
-        
+
         // --- ADD THESE INITIALIZATIONS ---
-        playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
+        playerRectangle = new Rectangle(
+            playerCharacter.getX(),
+            playerCharacter.getY(),
+            playerCharacter.getWidth(),
+            playerCharacter.getHeight()
+        );
         npcRectangle = new Rectangle(-10, -10, 1, 1);
         doorRectangle = new Rectangle(-10, -10, 1, 1);
         swordUpgradeRectangle = new Rectangle(-10, -10, 1, 1);
         // ---------------------------------
 
-        viewport        = new FitViewport(8, 8);
+        viewport = new FitViewport(8, 8);
 
         // Non-blocking enemy damage — fires every second off the render thread
         // inside create()
-        damageScheduler.scheduleAtFixedRate(() -> {
-            try {
-                // Iterate through the actual list of enemy instances
-                for (Enemy enemy : enemies) {
-                    if (!enemy.alive) continue;
+        damageScheduler.scheduleAtFixedRate(
+            () -> {
+                try {
+                    // Iterate through the actual list of enemy instances
+                    for (Enemy enemy : enemies) {
+                        if (!enemy.alive) continue;
 
-                    // Use the rectangle belonging to THIS specific enemy instance
-                    if (playerRectangle != null && enemy.rectangle.overlaps(playerRectangle)) {
-                        int dmg = ThreadLocalRandom.current().nextInt(4, 8);
-                        playerHealth -= dmg;
-                        System.out.println("Enemy dealt " + dmg + " damage — player HP: " + playerHealth);
+                        // Use the rectangle belonging to THIS specific enemy instance
+                        if (
+                            playerRectangle != null &&
+                            enemy.rectangle.overlaps(playerRectangle)
+                        ) {
+                            int dmg = ThreadLocalRandom.current().nextInt(4, 8);
+                            playerHealth -= dmg;
+                            System.out.println(
+                                "Enemy dealt " +
+                                    dmg +
+                                    " damage — player HP: " +
+                                    playerHealth
+                            );
 
-                        if (playerHealth <= 0 && !isRespawning) {
-                            isRespawning = true;
-                            playerHealth = 0;
-                            Gdx.app.postRunnable(() -> {
-                                try {
-                                    respawnPlayer();
-                                } catch (Exception e) {
-                                    System.out.println("Exception in respawnPlayer: " + e);
-                                } finally {
-                                    isRespawning = false;
-                                }
-                            });
+                            if (playerHealth <= 0 && !isRespawning) {
+                                isRespawning = true;
+                                playerHealth = 0;
+                                Gdx.app.postRunnable(() -> {
+                                    try {
+                                        respawnPlayer();
+                                    } catch (Exception e) {
+                                        System.out.println(
+                                            "Exception in respawnPlayer: " + e
+                                        );
+                                    } finally {
+                                        isRespawning = false;
+                                    }
+                                });
+                            }
+                            // Break after taking damage from one enemy to prevent
+                            // getting hit by 5 enemies in the exact same millisecond
+                            break;
                         }
-                        // Break after taking damage from one enemy to prevent
-                        // getting hit by 5 enemies in the exact same millisecond
-                        break;
                     }
+                } catch (Exception e) {
+                    System.out.println("Damage scheduler error: " + e);
                 }
-            } catch (Exception e) {
-                System.out.println("Damage scheduler error: " + e);
-            }
-        }, 1, 1, TimeUnit.SECONDS);
-        }
+            },
+            1,
+            1,
+            TimeUnit.SECONDS
+        );
+    }
+
     @Override
     public void render() {
         // Sync the static spawn flag set by changeMap() into the instance field
         if (pendingEnemySpawnStatic) {
-            pendingEnemySpawn       = true;
+            pendingEnemySpawn = true;
             pendingEnemySpawnStatic = false;
         }
         input();
@@ -371,7 +443,6 @@ public class Main extends ApplicationAdapter {
     public void resize(int width, int height) {
         viewport.update(width, height, true);
     }
-
 
     public void dispose() {
         spriteBatch.dispose();
@@ -394,14 +465,23 @@ public class Main extends ApplicationAdapter {
             float oldY = playerCharacter.getY();
 
             // --- X MOVEMENT ---
-            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && playerCharacter.getX() < 7) {
+            if (
+                Gdx.input.isKeyPressed(Input.Keys.RIGHT) &&
+                playerCharacter.getX() < 7
+            ) {
                 playerCharacter.setX(playerCharacter.getX() + speed * delta);
-            } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerCharacter.getX() > 0) {
+            } else if (
+                Gdx.input.isKeyPressed(Input.Keys.LEFT) &&
+                playerCharacter.getX() > 0
+            ) {
                 playerCharacter.setX(playerCharacter.getX() - speed * delta);
             }
 
             // Update your collision bounding box to match the new X position
-            playerRectangle.setPosition(playerCharacter.getX(), playerCharacter.getY());
+            playerRectangle.setPosition(
+                playerCharacter.getX(),
+                playerCharacter.getY()
+            );
 
             // Check X collisions
             for (Rectangle wallRectangle : wallRectangles) {
@@ -414,14 +494,23 @@ public class Main extends ApplicationAdapter {
             }
 
             // --- Y MOVEMENT ---
-            if (Gdx.input.isKeyPressed(Input.Keys.UP) && playerCharacter.getY() < 7) {
+            if (
+                Gdx.input.isKeyPressed(Input.Keys.UP) &&
+                playerCharacter.getY() < 7
+            ) {
                 playerCharacter.setY(playerCharacter.getY() + speed * delta);
-            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && playerCharacter.getY() > 0) {
+            } else if (
+                Gdx.input.isKeyPressed(Input.Keys.DOWN) &&
+                playerCharacter.getY() > 0
+            ) {
                 playerCharacter.setY(playerCharacter.getY() - speed * delta);
             }
 
             // Update your collision bounding box to match the new Y position
-            playerRectangle.setPosition(playerCharacter.getX(), playerCharacter.getY());
+            playerRectangle.setPosition(
+                playerCharacter.getX(),
+                playerCharacter.getY()
+            );
 
             // Check Y collisions
             for (Rectangle wallRectangle : wallRectangles) {
@@ -471,12 +560,14 @@ public class Main extends ApplicationAdapter {
         stopt1 = true;
 
         // Show death message without blocking the render thread
-        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
-            null,
-            "You died haha skill issue",
-            "Skill Issue Detected",
-            JOptionPane.WARNING_MESSAGE
-        ));
+        SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(
+                null,
+                "You died haha skill issue",
+                "Skill Issue Detected",
+                JOptionPane.WARNING_MESSAGE
+            )
+        );
 
         isRespawning = false; // if you added the guard from before
     }
@@ -510,14 +601,18 @@ public class Main extends ApplicationAdapter {
                 int tile = board[row][col];
 
                 switch (tile) {
-                    case 0 -> {}
+                    case 0 -> {
+                    }
                     case 1 -> {
                         wall.setPosition(col, currentY);
                         wall.draw(spriteBatch);
                         wallRectangles.add(new Rectangle(col, currentY, 1, 1));
                     }
                     case 2 -> {
-                        if (pendingEnemySpawn) spawnPoints.add(new int[]{col, currentY});
+                        if (pendingEnemySpawn) spawnPoints.add(new int[] {
+                            col,
+                            currentY,
+                        });
                     }
                     case 3 -> npc.setPosition(col, currentY);
                     case 4 -> swordUpgrade.setPosition(col, currentY);
@@ -537,7 +632,9 @@ public class Main extends ApplicationAdapter {
         // Only draw these if they were actually positioned within the map
         if (npcAlive && npc.getX() >= 0) npc.draw(spriteBatch);
         if (door.getX() >= 0) door.draw(spriteBatch);
-        if (swordUpgradeAvail && swordUpgrade.getX() >= 0) swordUpgrade.draw(spriteBatch);
+        if (swordUpgradeAvail && swordUpgrade.getX() >= 0) swordUpgrade.draw(
+            spriteBatch
+        );
 
         for (Enemy enemy : enemies) {
             enemy.draw(spriteBatch);
@@ -546,18 +643,40 @@ public class Main extends ApplicationAdapter {
         if (playerHealth > 0) playerCharacter.draw(spriteBatch);
 
         // Update collision rectangles
-        playerRectangle.set(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
+        playerRectangle.set(
+            playerCharacter.getX(),
+            playerCharacter.getY(),
+            playerCharacter.getWidth(),
+            playerCharacter.getHeight()
+        );
         npcRectangle.set(npc.getX(), npc.getY(), 1, 1);
         doorRectangle.set(door.getX(), door.getY(), 1, 1);
-        swordUpgradeRectangle.set(swordUpgrade.getX(), swordUpgrade.getY(), 1, 1);
+        swordUpgradeRectangle.set(
+            swordUpgrade.getX(),
+            swordUpgrade.getY(),
+            1,
+            1
+        );
 
         swordUpgradeUI.setPosition(1, 7);
         swordUpgradeUI.draw(spriteBatch, 1f);
         spriteBatch.end();
 
-        spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        spriteBatch.setProjectionMatrix(
+            new Matrix4().setToOrtho2D(
+                0,
+                0,
+                Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight()
+            )
+        );
         spriteBatch.begin();
-        font.draw(spriteBatch, "HP: " + playerHealth, 10, Gdx.graphics.getHeight() - 10);
+        font.draw(
+            spriteBatch,
+            "HP: " + playerHealth,
+            10,
+            Gdx.graphics.getHeight() - 10
+        );
         spriteBatch.end();
     }
 
@@ -583,7 +702,12 @@ public class Main extends ApplicationAdapter {
     public void changeMap(int newMapIndex) {
         if (newMapIndex >= maps.length) {
             System.out.println("No more maps to load.");
-            int result = JOptionPane.showConfirmDialog(null, "You beat the game!", "Victory", JOptionPane.DEFAULT_OPTION);
+            int result = JOptionPane.showConfirmDialog(
+                null,
+                "You beat the game!",
+                "Victory",
+                JOptionPane.DEFAULT_OPTION
+            );
 
             if (result == JOptionPane.OK_OPTION) {
                 // Code that runs when OK is pressed
@@ -598,12 +722,18 @@ public class Main extends ApplicationAdapter {
         // Reset player to safe spawn position
         playerCharacter.setX(0);
         playerCharacter.setY(0);
-        playerRectangle = new Rectangle(0, 0, playerCharacter.getWidth(), playerCharacter.getHeight());
+        playerRectangle = new Rectangle(
+            0,
+            0,
+            playerCharacter.getWidth(),
+            playerCharacter.getHeight()
+        );
 
         // Reset per-room game state
-        npcAlive         = true;
+        io.github.landoodle123.javaRPG.npc.reshuffleName();
+        npcAlive = true;
         swordUpgradeAvail = true;
-        npcHealth        = 10;
+        npcHealth = 10;
 
         // Clear stale wall data — draw() repopulates every frame
         wallRectangles.clear();
@@ -616,9 +746,9 @@ public class Main extends ApplicationAdapter {
         swordUpgrade.setPosition(-10, -10);
         door.setPosition(-10, -10);
 
-        npcRectangle          = new Rectangle(-10, -10, 1, 1);
+        npcRectangle = new Rectangle(-10, -10, 1, 1);
         swordUpgradeRectangle = new Rectangle(-10, -10, 1, 1);
-        doorRectangle         = new Rectangle(-10, -10, 1, 1);
+        doorRectangle = new Rectangle(-10, -10, 1, 1);
 
         // Signal render() to set pendingEnemySpawn = true on the next frame.
         // (changeMap is static, so we use a static flag as a bridge.)
@@ -627,13 +757,16 @@ public class Main extends ApplicationAdapter {
         stopt1 = true;
         System.out.println("Loaded map: " + maps[currentLoadedMap]);
     }
+
     // -------------------------
     // Actions
     // -------------------------
     public void use() {
         if (playerRectangle.overlaps(npcRectangle)) {
             try {
-                if (npcAlive) { executor.submit(runTalk); }
+                if (npcAlive) {
+                    executor.submit(runTalk);
+                }
             } catch (Exception e) {
                 System.out.println("Failed with exception: " + e);
             }
@@ -641,7 +774,9 @@ public class Main extends ApplicationAdapter {
             if (playerSword < 10 && swordUpgradeAvail) {
                 playerSword++;
                 System.out.println("playerSword level is " + playerSword);
-                swordLevelTexture = new Texture(swordLevelTextureFileNames[playerSword - 1]);
+                swordLevelTexture = new Texture(
+                    swordLevelTextureFileNames[playerSword - 1]
+                );
                 swordUpgradeUI.setTexture(swordLevelTexture);
                 swordUpgradeAvail = false;
             } else {
@@ -677,7 +812,11 @@ public class Main extends ApplicationAdapter {
     public void attack() {
         // --- Hit NPC ---
         // Added npc.getX() check to ensure they aren't hit while "hidden" off-screen
-        if (playerRectangle.overlaps(npcRectangle) && npcAlive && npc.getX() >= 0) {
+        if (
+            playerRectangle.overlaps(npcRectangle) &&
+            npcAlive &&
+            npc.getX() >= 0
+        ) {
             System.out.println("NPC hit");
             npcHealth -= playerSword;
             if (npcHealth <= 0) {
@@ -704,7 +843,12 @@ public class Main extends ApplicationAdapter {
 
     public static void talk(String message) throws InterruptedException {
         JDialog d = new JDialog((JFrame) null, "Conversation");
-        JLabel l = new JLabel(String.format("<html><body style='width: 350px; align: center'><p>%s</p></body></html>", message));
+        JLabel l = new JLabel(
+            String.format(
+                "<html><body style='width: 350px; align: center'><p>%s</p></body></html>",
+                message
+            )
+        );
         d.add(l);
         d.setSize(400, 400);
         d.setLocation(400, 400);
