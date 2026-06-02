@@ -1,5 +1,4 @@
 package io.github.landoodle123.javaRPG;
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -27,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.badlogic.gdx.Gdx.graphics;
-import static io.github.landoodle123.javaRPG.npc.npcRectangle;
 import static io.github.landoodle123.javaRPG.player.*;
 import static io.github.landoodle123.javaRPG.npc.*;
 
@@ -304,6 +302,17 @@ public class Main extends ApplicationAdapter {
         door.setSize(1, 1);
 
         enemyTexture = new Texture("evilman.png");
+        playerCharacter = new Sprite(charTexture);
+        playerCharacter.setSize(0.85f, 0.85f);
+        
+        // --- ADD THESE INITIALIZATIONS ---
+        playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
+        npcRectangle = new Rectangle(-10, -10, 1, 1);
+        doorRectangle = new Rectangle(-10, -10, 1, 1);
+        swordUpgradeRectangle = new Rectangle(-10, -10, 1, 1);
+        // ---------------------------------
+
+        viewport        = new FitViewport(8, 8);
 
         // Non-blocking enemy damage — fires every second off the render thread
         // inside create()
@@ -380,38 +389,47 @@ public class Main extends ApplicationAdapter {
         float speed = 1f;
         float delta = graphics.getDeltaTime();
         if (playerHealth > 0) {
+            // 1. Store the player's safe position before any movement happens this frame
+            float oldX = playerCharacter.getX();
+            float oldY = playerCharacter.getY();
+
+            // --- X MOVEMENT ---
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && playerCharacter.getX() < 7) {
                 playerCharacter.setX(playerCharacter.getX() + speed * delta);
-                for (Rectangle wallRectangle : wallRectangles) {
-                    if (playerRectangle.overlaps(wallRectangle) && wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
-                        playerCharacter.setX(Math.round(playerCharacter.getX()) - speed * delta);
-                        System.out.println("overlaps");
-                        System.out.println("coords = " + wallRectangle.getX() + wallRectangle.getY());
-                    }
-                }
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerCharacter.getX() > 0) {
+            } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerCharacter.getX() > 0) {
                 playerCharacter.setX(playerCharacter.getX() - speed * delta);
-                for (Rectangle wallRectangle : wallRectangles) {
-                    if (playerRectangle.overlaps(wallRectangle) && wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
-                        playerCharacter.setX(Math.round(playerCharacter.getX()) + speed * delta);
-                    }
+            }
+
+            // Update your collision bounding box to match the new X position
+            playerRectangle.setPosition(playerCharacter.getX(), playerCharacter.getY());
+
+            // Check X collisions
+            for (Rectangle wallRectangle : wallRectangles) {
+                if (playerRectangle.overlaps(wallRectangle)) {
+                    // Collision detected! Revert strictly to the old X position
+                    playerCharacter.setX(oldX);
+                    playerRectangle.setPosition(oldX, playerCharacter.getY());
+                    break; // No need to check other walls if we already hit one
                 }
             }
+
+            // --- Y MOVEMENT ---
             if (Gdx.input.isKeyPressed(Input.Keys.UP) && playerCharacter.getY() < 7) {
                 playerCharacter.setY(playerCharacter.getY() + speed * delta);
-                for (Rectangle wallRectangle : wallRectangles) {
-                    if (playerRectangle.overlaps(wallRectangle) && wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
-                        playerCharacter.setY(Math.round(playerCharacter.getY()) - speed * delta);
-                    }
-                }
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && playerCharacter.getY() > 0) {
+            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && playerCharacter.getY() > 0) {
                 playerCharacter.setY(playerCharacter.getY() - speed * delta);
-                for (Rectangle wallRectangle : wallRectangles) {
-                    if (playerRectangle.overlaps(wallRectangle) && wallRectangle.getX() != 0 && wallRectangle.getY() != 0) {
-                        playerCharacter.setY(Math.round(playerCharacter.getY()) + speed * delta);
-                    }
+            }
+
+            // Update your collision bounding box to match the new Y position
+            playerRectangle.setPosition(playerCharacter.getX(), playerCharacter.getY());
+
+            // Check Y collisions
+            for (Rectangle wallRectangle : wallRectangles) {
+                if (playerRectangle.overlaps(wallRectangle)) {
+                    // Collision detected! Revert strictly to the old Y position
+                    playerCharacter.setY(oldY);
+                    playerRectangle.setPosition(playerCharacter.getX(), oldY);
+                    break;
                 }
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -528,10 +546,10 @@ public class Main extends ApplicationAdapter {
         if (playerHealth > 0) playerCharacter.draw(spriteBatch);
 
         // Update collision rectangles
-        playerRectangle = new Rectangle(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
-        npcRectangle = new Rectangle(npc.getX(), npc.getY(), 1, 1);
-        doorRectangle = new Rectangle(door.getX(), door.getY(), 1, 1);
-        swordUpgradeRectangle = new Rectangle(swordUpgrade.getX(), swordUpgrade.getY(), 1, 1);
+        playerRectangle.set(playerCharacter.getX(), playerCharacter.getY(), playerCharacter.getWidth(), playerCharacter.getHeight());
+        npcRectangle.set(npc.getX(), npc.getY(), 1, 1);
+        doorRectangle.set(door.getX(), door.getY(), 1, 1);
+        swordUpgradeRectangle.set(swordUpgrade.getX(), swordUpgrade.getY(), 1, 1);
 
         swordUpgradeUI.setPosition(1, 7);
         swordUpgradeUI.draw(spriteBatch, 1f);
