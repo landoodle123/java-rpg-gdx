@@ -1,18 +1,10 @@
 package io.github.landoodle123.javaRPG;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -29,7 +21,6 @@ public class npc {
         "GOOD John",
         "Consumer of Grass",
     };
-    private Integer health = 10;
     private static Integer nameNumber = ThreadLocalRandom.current().nextInt(
         0,
         9
