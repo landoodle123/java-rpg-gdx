@@ -38,7 +38,6 @@ public class Main extends ApplicationAdapter {
         int health;
         boolean alive = true;
         Sprite sprite;
-        // REMOVED 'static' so every enemy has its own hitbox!
         Rectangle rectangle;
 
         float moveTimer = 0f;
@@ -78,7 +77,6 @@ public class Main extends ApplicationAdapter {
 
             int[] next = aStarNextStep(ex, ey, px, py);
             if (next != null) {
-                // NEW: Check if another alive enemy is already at the target tile
                 boolean cellOccupied = false;
                 for (Enemy other : enemies) {
                     if (
@@ -269,9 +267,6 @@ public class Main extends ApplicationAdapter {
     static Boolean swordUpgradeAvail = true;
     static Boolean isRespawning = false;
 
-    // Enemies are spawned exactly once per map load.
-    // The instance flag is used in draw(); the static flag lets the static
-    // changeMap() method signal the next frame that a spawn is needed.
     private boolean pendingEnemySpawn = true;
     private static boolean pendingEnemySpawnStatic = false;
 
@@ -356,7 +351,6 @@ public class Main extends ApplicationAdapter {
         playerCharacter = new Sprite(charTexture);
         playerCharacter.setSize(0.85f, 0.85f);
 
-        // --- ADD THESE INITIALIZATIONS ---
         playerRectangle = new Rectangle(
             playerCharacter.getX(),
             playerCharacter.getY(),
@@ -370,16 +364,12 @@ public class Main extends ApplicationAdapter {
 
         viewport = new FitViewport(8, 8);
 
-        // Non-blocking enemy damage — fires every second off the render thread
-        // inside create()
         damageScheduler.scheduleAtFixedRate(
             () -> {
                 try {
-                    // Iterate through the actual list of enemy instances
                     for (Enemy enemy : enemies) {
                         if (!enemy.alive) continue;
 
-                        // Use the rectangle belonging to THIS specific enemy instance
                         if (
                             playerRectangle != null &&
                             enemy.rectangle.overlaps(playerRectangle)
@@ -408,8 +398,6 @@ public class Main extends ApplicationAdapter {
                                     }
                                 });
                             }
-                            // Break after taking damage from one enemy to prevent
-                            // getting hit by 5 enemies in the exact same millisecond
                             break;
                         }
                     }
@@ -425,7 +413,6 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-        // Sync the static spawn flag set by changeMap() into the instance field
         if (pendingEnemySpawnStatic) {
             pendingEnemySpawn = true;
             pendingEnemySpawnStatic = false;
@@ -435,7 +422,6 @@ public class Main extends ApplicationAdapter {
         try {
             draw();
         } catch (Exception e) {
-            // throw new RuntimeException(e);
             SwingUtilities.invokeLater(() ->
             JOptionPane.showMessageDialog(
                 null,
@@ -475,7 +461,6 @@ public class Main extends ApplicationAdapter {
         float speed = 1f;
         float delta = graphics.getDeltaTime();
         if (playerHealth > 0) {
-            // 1. Store the player's safe position before any movement happens this frame
             float oldX = playerCharacter.getX();
             float oldY = playerCharacter.getY();
 
@@ -492,7 +477,6 @@ public class Main extends ApplicationAdapter {
                 playerCharacter.setX(playerCharacter.getX() - speed * delta);
             }
 
-            // Update your collision bounding box to match the new X position
             playerRectangle.setPosition(
                 playerCharacter.getX(),
                 playerCharacter.getY()
@@ -521,7 +505,6 @@ public class Main extends ApplicationAdapter {
                 playerCharacter.setY(playerCharacter.getY() - speed * delta);
             }
 
-            // Update your collision bounding box to match the new Y position
             playerRectangle.setPosition(
                 playerCharacter.getX(),
                 playerCharacter.getY()
@@ -574,7 +557,6 @@ public class Main extends ApplicationAdapter {
         playerCharacter.setPosition(0, 0);
         stopt1 = true;
 
-        // Show death message without blocking the render thread
         SwingUtilities.invokeLater(() ->
             JOptionPane.showMessageDialog(
                 null,
@@ -584,7 +566,7 @@ public class Main extends ApplicationAdapter {
             )
         );
 
-        isRespawning = false; // if you added the guard from before
+        isRespawning = false;
     }
 
     // =========================================================================
@@ -602,8 +584,6 @@ public class Main extends ApplicationAdapter {
         Integer[][] board = parseBoard(maps[currentLoadedMap]);
         wallRectangles.clear();
 
-        // RESET: Move special objects off-screen every frame.
-        // They will only be moved back if found in the current board loop.
         npc.setPosition(-10, -10);
         swordUpgrade.setPosition(-10, -10);
         door.setPosition(-10, -10);
@@ -657,7 +637,6 @@ public class Main extends ApplicationAdapter {
 
         if (playerHealth > 0) playerCharacter.draw(spriteBatch);
 
-        // Update collision rectangles
         playerRectangle.set(
             playerCharacter.getX(),
             playerCharacter.getY(),
@@ -734,7 +713,6 @@ public class Main extends ApplicationAdapter {
 
         currentLoadedMap = newMapIndex;
 
-        // Reset player to safe spawn position
         playerCharacter.setX(0);
         playerCharacter.setY(0);
         playerRectangle = new Rectangle(
@@ -744,19 +722,15 @@ public class Main extends ApplicationAdapter {
             playerCharacter.getHeight()
         );
 
-        // Reset per-room game state
         io.github.landoodle123.javaRPG.npc.reshuffleName();
         npcAlive = true;
         swordUpgradeAvail = true;
         npcHealth = 10;
 
-        // Clear stale wall data — draw() repopulates every frame
         wallRectangles.clear();
 
-        // Clear enemies — draw() will re-spawn from tile-2 positions next frame
         enemies.clear();
 
-        // Push old sprites off-screen to avoid one-frame ghost rendering
         npc.setPosition(-10, -10);
         swordUpgrade.setPosition(-10, -10);
         door.setPosition(-10, -10);
@@ -765,8 +739,6 @@ public class Main extends ApplicationAdapter {
         swordUpgradeRectangle = new Rectangle(-10, -10, 1, 1);
         doorRectangle = new Rectangle(-10, -10, 1, 1);
 
-        // Signal render() to set pendingEnemySpawn = true on the next frame.
-        // (changeMap is static, so we use a static flag as a bridge.)
         pendingEnemySpawnStatic = true;
 
         stopt1 = true;
@@ -826,7 +798,6 @@ public class Main extends ApplicationAdapter {
 
     public void attack() {
         // --- Hit NPC ---
-        // Added npc.getX() check to ensure they aren't hit while "hidden" off-screen
         if (
             playerRectangle.overlaps(npcRectangle) &&
             npcAlive &&
@@ -844,7 +815,6 @@ public class Main extends ApplicationAdapter {
         for (Enemy enemy : enemies) {
             if (!enemy.alive) continue;
 
-            // Use the instance-specific rectangle
             if (playerRectangle.overlaps(enemy.rectangle)) {
                 enemy.health -= playerSword;
                 System.out.println("Enemy hit — HP remaining: " + enemy.health);
