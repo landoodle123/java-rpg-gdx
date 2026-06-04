@@ -1,8 +1,6 @@
 package io.github.landoodle123.javaRPG;
 
 import static com.badlogic.gdx.Gdx.graphics;
-import static io.github.landoodle123.javaRPG.npc.*;
-import static io.github.landoodle123.javaRPG.player.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
@@ -202,6 +200,11 @@ public class Main extends ApplicationAdapter {
     static Sprite door;
     static Rectangle doorRectangle;
 
+    Texture charTexture;
+    static Sprite playerCharacter;
+    static Rectangle playerRectangle;
+    static Rectangle npcRectangle;
+
     static Texture swordLevelTexture;
     static Sprite swordUpgradeUI;
     static String[] swordLevelTextureFileNames = {
@@ -276,17 +279,10 @@ public class Main extends ApplicationAdapter {
     private static final ScheduledExecutorService damageScheduler =
         Executors.newSingleThreadScheduledExecutor();
 
-    // -------------------------
-    // Runnables
-    // -------------------------
     public static Runnable runTalk = () -> {
         try {
             while (!stopt1) {
-                talk(
-                    io.github.landoodle123.javaRPG.npc.getDialogueOptions()[
-                        ThreadLocalRandom.current().nextInt(0, 3)
-                    ]
-                );
+                talk(io.github.landoodle123.javaRPG.npc.getDialogueOptions()[ThreadLocalRandom.current().nextInt(0, 3)]);
             }
         } catch (InterruptedException e) {
             System.out.println("Failed with exception: " + e);
@@ -298,9 +294,10 @@ public class Main extends ApplicationAdapter {
     // -------------------------
     @Override
     public void create() {
-        spriteBatch = new SpriteBatch();
-        npcTexture = new Texture("guy.png");
-        swordLevelTexture = new Texture(swordLevelTextureFileNames[0]);
+        try {
+            spriteBatch = new SpriteBatch();
+            npcTexture = new Texture("guy.png");
+            swordLevelTexture = new Texture(swordLevelTextureFileNames[0]);
         swordUpgradeUI = new Sprite(swordLevelTexture);
         swordUpgradeUI.setSize(1, 1);
         npc = new Sprite(npcTexture);
@@ -409,6 +406,9 @@ public class Main extends ApplicationAdapter {
             1,
             TimeUnit.SECONDS
         );
+        } catch (Exception e) {
+            handleFatalError("Initialization error! " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -422,21 +422,7 @@ public class Main extends ApplicationAdapter {
         try {
             draw();
         } catch (Exception e) {
-            SwingUtilities.invokeLater(() ->
-            JOptionPane.showMessageDialog(
-                null,
-                "Draw error! %s".formatted(e.getMessage()),
-                "Error",
-                JOptionPane.WARNING_MESSAGE
-            )
-        );
-        try {
-            TimeUnit.SECONDS.sleep(15);
-        } catch (InterruptedException f) {
-            System.exit(1);
-        }
-        System.exit(1);
-
+            handleFatalError("Draw error! " + e.getMessage(), e);
         }
     }
 
@@ -446,12 +432,42 @@ public class Main extends ApplicationAdapter {
     }
 
     public void dispose() {
-        spriteBatch.dispose();
-        npcTexture.dispose();
-        charTexture.dispose();
-        enemyTexture.dispose();
-        executor.shutdown();
-        damageScheduler.shutdown();
+        if (spriteBatch != null) spriteBatch.dispose();
+        if (npcTexture != null) npcTexture.dispose();
+        if (charTexture != null) charTexture.dispose();
+        if (enemyTexture != null) enemyTexture.dispose();
+        if (executor != null) executor.shutdown();
+        if (damageScheduler != null) damageScheduler.shutdown();
+    }
+
+    private void showErrorDialog(String message, String title) {
+        try {
+            SwingUtilities.invokeAndWait(() ->
+                JOptionPane.showMessageDialog(
+                    null,
+                    message,
+                    title,
+                    JOptionPane.ERROR_MESSAGE
+                )
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void handleFatalError(String message, Exception e) {
+        e.printStackTrace();
+        showErrorDialog(message, "Error");
+        try {
+            dispose();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if (Gdx.app != null) {
+            Gdx.app.exit();
+        } else {
+            System.exit(1);
+        }
     }
 
     // -------------------------
@@ -704,9 +720,16 @@ public class Main extends ApplicationAdapter {
             );
 
             if (result == JOptionPane.OK_OPTION) {
-                // Code that runs when OK is pressed
-                dispose();
-                System.exit(0);
+                try {
+                    dispose();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (Gdx.app != null) {
+                    Gdx.app.exit();
+                } else {
+                    System.exit(0);
+                }
             }
             return;
         }
@@ -782,17 +805,20 @@ public class Main extends ApplicationAdapter {
 
             // Only change map if no enemies are alive or if there are no enemies
             if (!anyEnemyAlive) {
-                changeMap(currentLoadedMap + 1);
-
-                // Heal the player
-                if (playerHealth <= 80) {
-                    playerHealth += 20;
-                } else {
-                    playerHealth = 100;
+                try {
+                    changeMap(currentLoadedMap + 1);
+                    // Heal the player
+                    if (playerHealth <= 80) {
+                        playerHealth += 20;
+                    } else {
+                        playerHealth = 100;
+                    }
+                } catch (Exception e) {
+                    handleFatalError("Map load error! " + e.getMessage(), e);
                 }
+            } else {
+                System.out.println("no overlap");
             }
-        } else {
-            System.out.println("no overlap");
         }
     }
 
