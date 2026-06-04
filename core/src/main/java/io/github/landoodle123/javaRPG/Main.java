@@ -256,7 +256,7 @@ public class Main extends ApplicationAdapter {
         "upgradeRoom.json",
         "dungeon10.json",
         "main2.json",
-        "upgraderoom.json",
+        "upgradeRoom.json",
         "finalBoss.json",
     };
     static Integer currentLoadedMap = 0;
@@ -435,7 +435,22 @@ public class Main extends ApplicationAdapter {
         try {
             draw();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // throw new RuntimeException(e);
+            SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(
+                null,
+                "Draw error! %s".formatted(e.getMessage()),
+                "Error",
+                JOptionPane.WARNING_MESSAGE
+            )
+        );
+        try {
+            TimeUnit.SECONDS.sleep(15);
+        } catch (InterruptedException f) {
+            System.exit(1);
+        }
+        System.exit(1);
+
         }
     }
 
